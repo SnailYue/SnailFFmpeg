@@ -3,15 +3,12 @@
 //
 
 #include "native_lib.h"
+#include "init_lib.cpp"
 
-extern "C" jstring Java_com_test_ffmpeg_MainActivity_stringFromJNI(JNIEnv *env, jobject /* this */) {
+using namespace std;
 
-    std::string hello = "Hello from C++";
-
-    av_register_all();
-
-    return env->NewStringUTF(hello.c_str());
-
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_snail_snailffmpeg_native_KotlinToJNI_00024Companion_initFFmpeg(JNIEnv *env, jobject thiz) {
+    initFFmpeg();
 }
-
-

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-include_directories(include)
+include_directories(${CMAKE_SOURCE_DIR}/src/main/cpp/include)
 
 set(DIR ${CMAKE_SOURCE_DIR}/src/main/jniLibs)
 
@@ -29,9 +29,12 @@ set_target_properties(avfilter PROPERTIES IMPORTED_LOCATION ${DIR}/armeabi/libav
 add_library(native-lib
         SHARED
         ${CMAKE_SOURCE_DIR}/src/main/cpp/include/native_lib.cpp)
+add_library(init-lib
+        SHARED
+        ${CMAKE_SOURCE_DIR}/src/main/cpp/include/init_lib.cpp)
 
 find_library(log-lib log)
 
-target_link_libraries(native-lib
+target_link_libraries(native-lib init-lib
         avcodec avdevice avformat avutil swresample swscale
         ${log-lib})
