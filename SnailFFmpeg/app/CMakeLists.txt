@@ -32,9 +32,12 @@ add_library(native-lib
 add_library(init-lib
         SHARED
         ${CMAKE_SOURCE_DIR}/src/main/cpp/include/init_lib.cpp)
+add_library(mp4toavi
+        SHARED
+        ${CMAKE_SOURCE_DIR}/src/main/cpp/include/mp4toavi.cpp)
 
 find_library(log-lib log)
 
-target_link_libraries(native-lib init-lib
+target_link_libraries(native-lib init-lib mp4toavi
         avcodec avdevice avformat avutil swresample swscale
         ${log-lib})

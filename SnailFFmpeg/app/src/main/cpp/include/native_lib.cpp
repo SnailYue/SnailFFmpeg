@@ -10,5 +10,5 @@ using namespace std;
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_snail_snailffmpeg_native_KotlinToJNI_00024Companion_initFFmpeg(JNIEnv *env, jobject thiz) {
-    initFFmpeg();
+    init_ffmpeg();
 }

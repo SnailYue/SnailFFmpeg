@@ -19,7 +19,7 @@ AVCodecContext *c;
 /**
  * 注册API
  */
-static void registerAPI() {
+static void register_api() {
     av_register_all();
     cout << "register api" << endl;
 }
@@ -28,7 +28,7 @@ static void registerAPI() {
  * 申请avformat
  * @param filename
  */
-static void initFormat() {
+static void init_format() {
     avformat_alloc_output_context2(&oc, NULL, "flv", "");
     if (!oc) {
         return;
@@ -41,7 +41,7 @@ static void initFormat() {
 /**
  * 申请avstream
  */
-static void initAVStream() {
+static void init_avstream() {
     st = avformat_new_stream(oc, NULL);
     if (!st) {
         exit(1);
@@ -55,11 +55,14 @@ static void initAVStream() {
  * 初始化ffmpeg
  */
 
-static void initFFmpeg() {
-    registerAPI();
-    initFormat();
-    initAVStream();
+static void init_ffmpeg() {
+    register_api();
+    init_format();
+    init_avstream();
 }
+
+
+
 
 
 
