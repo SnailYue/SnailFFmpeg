@@ -45,6 +45,8 @@ int OpenInput(string inputUrl) {
 
 /**
  * 读取流中的信息
+ * shared_ptr  智能指针
+ * static_cast 一个类型转换的表达式
  * @return
  */
 shared_ptr<AVPacket> ReadPacketFromSource() {
@@ -71,14 +73,14 @@ int OpenOutput(string outUrl) {
     int ret = avformat_alloc_output_context2(&outputContext, nullptr, "*singlejpeg",
                                              outUrl.c_str());
     if (ret < 0) {
-        av_log(NULL, AV_LOG_ERROR, "open output context failed\n");
+        av_log(NULL, AV_LOG_ERROR, "Open output context failed\n");
         return -1;
     }
 
     ret = avio_open2(&outputContext->pb, outUrl.c_str(), AVIO_FLAG_WRITE, nullptr, nullptr);
 
     if (ret < 0) {
-        av_log(NULL, AV_LOG_ERROR, "open avio failed");
+        av_log(NULL, AV_LOG_ERROR, "Open avio failed");
         return -1;
     }
 
@@ -94,10 +96,9 @@ int OpenOutput(string outUrl) {
             return -1;
         }
     }
-
     ret = avformat_write_header(outputContext, nullptr);
     if (ret < 0) {
-        av_log(NULL, AV_LOG_ERROR, "format write header failed");
+        av_log(NULL, AV_LOG_ERROR, "Format write header failed");
         return -1;
     }
     av_log(NULL, AV_LOG_FATAL, "Open output file success");
@@ -119,7 +120,7 @@ void Init() {
  * 关闭输入流相关
  */
 void CloseInput() {
-    if (inputContext != nullptr) {
+    if (nullptr != inputContext) {
         avformat_close_input(&inputContext);
     }
 }
@@ -128,7 +129,7 @@ void CloseInput() {
  * 关闭输出流相关
  */
 void CloseOutput() {
-    if (inputContext != nullptr) {
+    if (nullptr != inputContext) {
         int ret = av_write_trailer(outputContext);
         for (int i = 0; i < outputContext->nb_streams; i++) {
             AVCodecContext *codecContext = outputContext->streams[i]->codec;
@@ -173,7 +174,7 @@ int InitDecodeContext(AVStream *inputStream) {
  * @param encodecContext
  * @return
  */
-int InitEncodecContext(AVStream *inputStream, AVCodecContext **encodecContext) {
+int InitEncoderContext(AVStream *inputStream, AVCodecContext **encodecContext) {
     AVCodec *picCodec;
     picCodec = avcodec_find_encoder(AV_CODEC_ID_MJPEG);
     (*encodecContext) = avcodec_alloc_context3(picCodec);
@@ -185,7 +186,7 @@ int InitEncodecContext(AVStream *inputStream, AVCodecContext **encodecContext) {
     (*encodecContext)->height = inputStream->codec->height;
     int ret = avcodec_open2((*encodecContext), picCodec, nullptr);
     if (ret < 0) {
-        std::cout << "open video codec failed" << endl;
+        av_log(NULL, AV_LOG_ERROR, "open video codec failed");
         return ret;
     }
     return 1;
@@ -213,13 +214,13 @@ bool Decode(AVStream *inputStream, AVPacket *packet, AVFrame *frame) {
  * @param frame
  * @return
  */
-std::shared_ptr<AVPacket> Encode(AVCodecContext *encodecContext, AVFrame *frame) {
+shared_ptr<AVPacket> Encode(AVCodecContext *encodecContext, AVFrame *frame) {
     int gotOutput = 0;
-    std::shared_ptr<AVPacket> pkt(static_cast<AVPacket *>(av_malloc(sizeof(AVPacket))),
-                                  [&](AVPacket *p) {
-                                      av_packet_free(&p);
-                                      av_free(&p);
-                                  });
+    shared_ptr<AVPacket> pkt(static_cast<AVPacket *>(av_malloc(sizeof(AVPacket))),
+                             [&](AVPacket *p) {
+                                 av_packet_free(&p);
+                                 av_free(&p);
+                             });
     av_init_packet(pkt.get());
     pkt->data = NULL;
     pkt->size = 0;
@@ -249,7 +250,8 @@ int _tmain() {
     AVCodecContext *encodecContext = nullptr;
     InitDecodeContext(inputContext->streams[0]);
     AVFrame *videoFrame = av_frame_alloc();
-    InitEncodecContext(inputContext->streams[0], &encodecContext);
+    InitEncoderContext(inputContext->streams[0], &encodecContext);
+
     while (true) {
         auto packet = ReadPacketFromSource();
         if (packet && packet->stream_index == 0) {
