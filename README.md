@@ -1,2 +1,2 @@
 # SnailFFmpeg
-An Project of FFmpeg Learning
+A Project of FFmpeg Learning
