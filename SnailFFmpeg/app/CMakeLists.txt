@@ -42,10 +42,12 @@ add_library(stream-image-lib
 add_library(audio-codec
         SHARED
         ${CMAKE_SOURCE_DIR}/src/main/cpp/include/audio_codec.cpp)
-
+add_library(video-codec
+        SHARED
+        ${CMAKE_SOURCE_DIR}/src/main/cpp/include/video_codec.cpp)
 
 find_library(log-lib log)
 
-target_link_libraries(audio-codec native-lib init-lib mp4toavi
+target_link_libraries(video-codec audio-codec native-lib init-lib mp4toavi
         avcodec avdevice avformat avutil swresample swscale
         ${log-lib})
