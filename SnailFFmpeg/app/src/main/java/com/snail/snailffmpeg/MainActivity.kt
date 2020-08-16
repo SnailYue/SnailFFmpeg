@@ -3,7 +3,6 @@ package com.snail.snailffmpeg
 
 import com.snail.snailffmpeg.base.BaseActivity
 import com.snail.snailffmpeg.extends.hide
-import com.snail.snailffmpeg.native.KotlinToJNI.Companion.initFFmpeg
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity() {
@@ -21,6 +20,5 @@ class MainActivity : BaseActivity() {
     }
 
     override fun loadData() {
-        initFFmpeg()
     }
 }
