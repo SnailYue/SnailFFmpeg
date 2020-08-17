@@ -16,7 +16,7 @@ class MainActivity : BaseActivity() {
     override fun initView() {
         tv_text.text = "This Is My First FFmpeg Project"
         tv_text.hide()
-        loadData()
+
     }
 
     override fun loadData() {

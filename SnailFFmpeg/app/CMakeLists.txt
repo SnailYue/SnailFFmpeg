@@ -70,6 +70,7 @@ add_library(live
         ${CMAKE_SOURCE_DIR}/src/main/cpp/RtmpPusher.cpp
         ${CMAKE_SOURCE_DIR}/src/main/cpp/AudioStream.cpp
         ${CMAKE_SOURCE_DIR}/src/main/cpp/VideoStream.cpp
+        ${CMAKE_SOURCE_DIR}/src/main/cpp/SafeQueue.cpp
         )
 
 find_library(log-lib log)

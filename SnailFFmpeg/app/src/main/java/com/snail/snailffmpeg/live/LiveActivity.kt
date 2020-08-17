@@ -1,5 +1,7 @@
 package com.snail.snailffmpeg.live
 
+import android.app.Activity
+import android.content.Intent
 import android.hardware.Camera
 import android.media.AudioFormat
 import com.snail.snailffmpeg.R
@@ -9,6 +11,12 @@ import com.snail.snailffmpeg.live.model.VideoBean
 import kotlinx.android.synthetic.main.activity_live.*
 
 class LiveActivity : BaseActivity() {
+
+    companion object {
+        fun start(activity: Activity) {
+            activity.startActivity(Intent())
+        }
+    }
 
     var url = ""
     lateinit var livePusher: LivePusher
@@ -33,7 +41,10 @@ class LiveActivity : BaseActivity() {
 
     }
 
-    fun initPusher() {
+    /**
+     * 初始化
+     */
+    private fun initPusher() {
         var width = 640
         var height = 480
         var videoBitRate = 800_000
