@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -16,17 +17,13 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        sourceSets {
-            main {
-                jniLibs.srcDirs = ['src/main/jniLibs']
-            }
-        }
-
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11 -frtti -fexceptions"
-                abiFilters 'armeabi-v7a'
             }
+        }
+        ndk {
+            abiFilters 'armeabi-v7a'
         }
     }
 
@@ -51,6 +48,15 @@ android {
             path "CMakeLists.txt"
         }
     }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+            jni.srcDirs = []
+        }
+    }
+
+    useLibrary "org.apache.http.legacy"
 }
 
 dependencies {
@@ -64,5 +70,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
+
+    implementation "org.permissionsdispatcher:permissionsdispatcher:4.7.0"
+    kapt "org.permissionsdispatcher:permissionsdispatcher-processor:4.7.0"
 
 }

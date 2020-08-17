@@ -105,7 +105,7 @@ void *start(void *args) {
             packet->m_nInfoField2 = rtmp->m_stream_id;
             ret = RTMP_SendPacket(rtmp, packet, 1);
             if (!ret) {
-                break
+                break;
             }
         }
         releasePackets(packet);
@@ -132,7 +132,6 @@ Java_com_snail_snailffmpeg_live_LivePusher_native_1init(JNIEnv *env, jobject thi
     videoStream->setVideoCallback(callback);
     audioStream = new AudioStream;
     audioStream->setAudioCallback(callback);
-
     packets.setReleaseCallback(releasePackets);
     jobject_error = env->NewGlobalRef(thiz);
 }

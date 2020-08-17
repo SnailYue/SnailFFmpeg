@@ -102,7 +102,7 @@ void VideoStream::encodeData(int8_t *data) {
         if (pp_nal[i].i_type == NAL_SPS) {
             sps_len = pp_nal[i].i_payload - 4;
             memcpy(sps, pp_nal[i].p_payload + 4, static_cast<size_t>(sps_len));
-        } else if () {
+        } else if (pp_nal[i].i_type == NAL_PPS) {
             pps_len = pp_nal[i].i_payload - 4;
             memcpy(pps, pp_nal[i].p_payload + 4, static_cast<size_t>(pps_len));
             sendSpsPps(sps, pps, sps_len, pps_len);
@@ -203,5 +203,5 @@ void VideoStream::sendFrame(int type, uint8_t *payload, int i_payload) {
     packet->m_nChannel = 0x10;
     packet->m_headerType = RTMP_PACKET_SIZE_LARGE;
 
-    videoCallback(packet)
+    videoCallback(packet);
 }

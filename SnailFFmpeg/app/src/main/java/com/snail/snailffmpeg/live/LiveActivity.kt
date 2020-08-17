@@ -13,8 +13,10 @@ import kotlinx.android.synthetic.main.activity_live.*
 class LiveActivity : BaseActivity() {
 
     companion object {
+
+        @JvmStatic
         fun start(activity: Activity) {
-            activity.startActivity(Intent())
+            activity.startActivity(Intent(activity, LiveActivity::class.java))
         }
     }
 
@@ -26,13 +28,13 @@ class LiveActivity : BaseActivity() {
     override fun initView() {
 
         bt_start_live.setOnClickListener {
-            livePusher.startPush(url)
+            livePusher?.startPush(url)
         }
         bt_stop_live.setOnClickListener {
-            livePusher.stopPush()
+            livePusher?.stopPush()
         }
         bt_switch.setOnClickListener {
-            livePusher.switchCamera()
+            livePusher?.switchCamera()
         }
         initPusher()
     }
@@ -49,7 +51,7 @@ class LiveActivity : BaseActivity() {
         var height = 480
         var videoBitRate = 800_000
         var videoFrameRaote = 10
-        var videoParam = VideoBean(
+        var videoBean = VideoBean(
             width,
             height,
             Camera.CameraInfo.CAMERA_FACING_BACK,
@@ -60,8 +62,8 @@ class LiveActivity : BaseActivity() {
         var channelConfig = AudioFormat.CHANNEL_IN_STEREO
         var audioFormat = AudioFormat.ENCODING_PCM_16BIT
         var numChannels = 2
-        var audioParam = AudioBean(sampleRate, channelConfig, audioFormat, numChannels)
-        livePusher = LivePusher(this, videoParam, audioParam)
+        var audioBean = AudioBean(channelConfig, sampleRate, audioFormat, numChannels)
+        livePusher = LivePusher(this, videoBean, audioBean)
         livePusher.setPreviewDisplay(sv_video.holder)
     }
 }

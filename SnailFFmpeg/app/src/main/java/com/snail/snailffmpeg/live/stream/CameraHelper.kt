@@ -3,6 +3,7 @@ package com.snail.snailffmpeg.live.stream
 import android.app.Activity
 import android.graphics.ImageFormat
 import android.hardware.Camera
+import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 
@@ -15,7 +16,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
     private var mHeight: Int = 0
     private var mWidth: Int = 0
     private var mCameraId: Int = 0
-    private lateinit var mCamera: Camera
+    private var mCamera: Camera? = null
     private lateinit var buffer: ByteArray
     private lateinit var mSurfaceHolder: SurfaceHolder
     private lateinit var mPreviewCallback: Camera.PreviewCallback
@@ -60,17 +61,19 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
      */
     private fun startPreview() {
         mCamera = Camera.open(mCameraId)
-        var parameters = mCamera.parameters
-        parameters.previewFormat = ImageFormat.NV21
-        setPreviewSize(parameters)
+        var parameters = mCamera?.parameters
+        parameters?.previewFormat = ImageFormat.NV21
+//        parameters?.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
+        setPreviewSize(parameters!!)
         setPreviewOrientation(parameters)
-        mCamera.parameters = parameters
         buffer = ByteArray(mWidth * mHeight * 3 / 2)
         bytes = ByteArray(buffer.size)
-        mCamera.addCallbackBuffer(buffer)
-        mCamera.setPreviewCallbackWithBuffer(this)
-        mCamera.setPreviewDisplay(mSurfaceHolder)
-        mCamera.startPreview()
+        mCamera?.parameters = parameters
+        mCamera?.addCallbackBuffer(buffer)
+        mCamera?.setPreviewCallbackWithBuffer(this)
+        mCamera?.setPreviewDisplay(mSurfaceHolder)
+        mCamera?.startPreview()
+//        mCamera?.cancelAutoFocus()
     }
 
     /**
@@ -106,7 +109,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
         } else {
             result = (info.orientation - degress + 360) % 360
         }
-        mCamera.setDisplayOrientation(result)
+        mCamera?.setDisplayOrientation(result)
     }
 
 
@@ -143,6 +146,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+        Log.d("surfaceChanged", "width = " + width + ", height = " + height)
         stopPreview()
         startPreview()
     }
