@@ -96,6 +96,12 @@ class LivePusher {
         native_pushVideo(data)
     }
 
+    /**
+     * 从Native中传回的错误码
+     */
+    fun errorFromNative(errorCode: Int) {
+
+    }
 
     external fun native_init()
 
