@@ -21,7 +21,7 @@ class MainActivity : BaseActivity() {
     override fun initView() {
         tv_text.text = "This Is My First FFmpeg Project"
         tv_text.hide()
-        needCameraPermission()
+        needCameraPermissionWithPermissionCheck()
     }
 
     override fun loadData() {
@@ -29,15 +29,31 @@ class MainActivity : BaseActivity() {
     }
 
 
-    @NeedsPermission(Manifest.permission.CAMERA)
+    @NeedsPermission(
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
     fun needCameraPermission() {
         LiveActivity.start(this)
     }
 
 
-    @NeedsPermission(Manifest.permission.CAMERA)
+    @NeedsPermission(
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
     fun deniedPermission() {
         System.exit(0)
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        onRequestPermissionsResult(requestCode, grantResults)
+    }
 }
