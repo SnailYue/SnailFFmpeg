@@ -19,8 +19,6 @@ class MainActivity : BaseActivity() {
     override var getView: Int = R.layout.activity_main
 
     override fun initView() {
-        tv_text.text = "This Is My First FFmpeg Project"
-        tv_text.hide()
         needCameraPermissionWithPermissionCheck()
     }
 

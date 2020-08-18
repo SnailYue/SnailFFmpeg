@@ -2,8 +2,10 @@ package com.snail.snailffmpeg.live.stream
 
 import android.app.Activity
 import android.hardware.Camera
+import android.util.Log
 import android.view.SurfaceHolder
 import com.snail.snailffmpeg.live.LivePusher
+import com.snail.snailffmpeg.utils.PLog
 
 
 /**
@@ -71,6 +73,7 @@ class VideoStream : Camera.PreviewCallback {
     }
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera?) {
+        PLog.d("onPreviewFrame")
         if (isLiving) {
             mLivePusher.pushVideo(data)
         }

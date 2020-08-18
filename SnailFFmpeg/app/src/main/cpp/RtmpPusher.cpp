@@ -6,6 +6,7 @@
 #include "VideoStream.h"
 #include "AudioStream.h"
 #include "SafeQueue.h"
+#include "LogUtil.h"
 
 
 JavaVM *javaVM;
@@ -43,6 +44,7 @@ void throwErrToJava(int error_code) {
  * @param packet
  */
 void callback(RTMPPacket *packet) {
+    LOGI("callback");
     if (packet) {
         packet->m_nTimeStamp = RTMP_GetTime() - start_time;
         packets.push(packet);
@@ -54,6 +56,7 @@ void callback(RTMPPacket *packet) {
  * @param packet
  */
 void releasePackets(RTMPPacket *&packet) {
+    LOGI("releasePackets");
     if (packet) {
         RTMPPacket_Free(packet);
         delete packet;
@@ -67,26 +70,31 @@ void releasePackets(RTMPPacket *&packet) {
  * @return
  */
 void *start(void *args) {
+    LOGI("thread start");
     char *url = static_cast<char *>(args);
     RTMP *rtmp = 0;
     do {
         rtmp = RTMP_Alloc();
         if (!rtmp) {
+            throwErrToJava(0);
             break;
         }
         RTMP_Init(rtmp);
         int ret = RTMP_SetupURL(rtmp, url);
         if (!ret) {
+            throwErrToJava(1);
             break;
         }
         rtmp->Link.timeout = 5;
         RTMP_EnableWrite(rtmp);
         ret = RTMP_Connect(rtmp, 0);
         if (!ret) {
+            throwErrToJava(2);
             break;
         }
         ret = RTMP_ConnectStream(rtmp, 0);
         if (!ret) {
+            throwErrToJava(3);
             break;
         }
         start_time = RTMP_GetTime();
@@ -105,6 +113,7 @@ void *start(void *args) {
             packet->m_nInfoField2 = rtmp->m_stream_id;
             ret = RTMP_SendPacket(rtmp, packet, 1);
             if (!ret) {
+                throwErrToJava(4);
                 break;
             }
         }
@@ -118,6 +127,7 @@ void *start(void *args) {
         RTMP_Close(rtmp);
         RTMP_Free(rtmp);
     }
+    LOGI("thread end");
     delete (url);
     return 0;
 }
@@ -128,6 +138,7 @@ void *start(void *args) {
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_snail_snailffmpeg_live_LivePusher_native_1init(JNIEnv *env, jobject thiz) {
+    LOGI("native_init");
     videoStream = new VideoStream;
     videoStream->setVideoCallback(callback);
     audioStream = new AudioStream;
@@ -142,6 +153,7 @@ Java_com_snail_snailffmpeg_live_LivePusher_native_1init(JNIEnv *env, jobject thi
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_snail_snailffmpeg_live_LivePusher_native_1start(JNIEnv *env, jobject thiz, jstring path) {
+    LOGI("native_start");
     if (isStart) {
         return;
     }
@@ -159,6 +171,7 @@ Java_com_snail_snailffmpeg_live_LivePusher_native_1start(JNIEnv *env, jobject th
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_snail_snailffmpeg_live_LivePusher_getInputSamples(JNIEnv *env, jobject thiz) {
+    LOGI("native_getInputSamples");
     if (audioStream) {
         return audioStream->getInputSamples();
     }
@@ -172,7 +185,9 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_snail_snailffmpeg_live_LivePusher_native_1pushAudio(JNIEnv *env, jobject thiz,
                                                              jbyteArray data) {
-    if (!audioStream || !readyPushing) {
+    LOGI("native_pushAudio");
+    if (!audioStream || 0 == readyPushing) {
+        LOGE("audioStream == 0");
         return;
     }
     jbyte *_data = env->GetByteArrayElements(data, 0);
@@ -187,6 +202,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_snail_snailffmpeg_live_LivePusher_native_1pushVideo(JNIEnv *env, jobject thiz,
                                                              jbyteArray data) {
+    LOGI("native_pushVideo");
     if (!videoStream || !readyPushing) {
         return;
     }
@@ -201,6 +217,7 @@ Java_com_snail_snailffmpeg_live_LivePusher_native_1pushVideo(JNIEnv *env, jobjec
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_snail_snailffmpeg_live_LivePusher_native_1release(JNIEnv *env, jobject thiz) {
+    LOGI("native_release");
     env->DeleteGlobalRef(jobject_error);
     delete videoStream;
     delete audioStream;
@@ -214,6 +231,7 @@ JNIEXPORT void JNICALL
 Java_com_snail_snailffmpeg_live_LivePusher_native_1setAudioCodecInfo(JNIEnv *env, jobject thiz,
                                                                      jint sample_rate,
                                                                      jint channels) {
+    LOGI("native_setAudioCodecInfo");
     if (audioStream) {
         audioStream->setAudioEncInfo(sample_rate, channels);
     }
@@ -227,6 +245,7 @@ JNIEXPORT void JNICALL
 Java_com_snail_snailffmpeg_live_LivePusher_native_1setVideoCodecInfo(JNIEnv *env, jobject thiz,
                                                                      jint width, jint height,
                                                                      jint fps, jint bitrate) {
+    LOGI("native_videoCodecInfo");
     if (videoStream) {
         videoStream->setVideoEncInfo(width, height, fps, bitrate);
     }
@@ -238,6 +257,7 @@ Java_com_snail_snailffmpeg_live_LivePusher_native_1setVideoCodecInfo(JNIEnv *env
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_snail_snailffmpeg_live_LivePusher_native_1stop(JNIEnv *env, jobject thiz) {
+    LOGI("native_stop");
     readyPushing = 0;
     packets.setWork(0);
     pthread_join(pid, 0);

@@ -9,6 +9,7 @@
 #include "include/x264/x264.h"
 #include <pthread.h>
 #include <inttypes.h>
+#include "LogUtil.h"
 
 class VideoStream {
     typedef void (*VideoCallback)(RTMPPacket *packet);

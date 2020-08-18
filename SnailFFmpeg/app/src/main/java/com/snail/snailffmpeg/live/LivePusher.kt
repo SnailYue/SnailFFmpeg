@@ -6,6 +6,7 @@ import com.snail.snailffmpeg.live.model.AudioBean
 import com.snail.snailffmpeg.live.model.VideoBean
 import com.snail.snailffmpeg.live.stream.AudioStream
 import com.snail.snailffmpeg.live.stream.VideoStream
+import com.snail.snailffmpeg.utils.PLog
 
 class LivePusher {
 
@@ -18,6 +19,7 @@ class LivePusher {
     var activity: Activity? = null
 
     constructor(activity: Activity, videoBean: VideoBean, audioBean: AudioBean) {
+        PLog.d("constructor")
         this.activity = activity
         native_init()
         videoStream = VideoStream(
@@ -36,6 +38,7 @@ class LivePusher {
      * 设置预览
      */
     fun setPreviewDisplay(surfaceHolder: SurfaceHolder) {
+        PLog.d("setPreviewDisplay")
         videoStream.setPreviewDisplay(surfaceHolder)
     }
 
@@ -44,6 +47,7 @@ class LivePusher {
      * 切换摄像头
      */
     fun switchCamera() {
+        PLog.i("switchCamera")
         videoStream.switchCamera()
     }
 
@@ -55,12 +59,14 @@ class LivePusher {
     }
 
     fun startPush(path: String) {
+        PLog.i("startPush")
         native_start(path)
         videoStream.startLive()
         audioStream.startLive()
     }
 
     fun stopPush() {
+        PLog.i("stopPush")
         videoStream.stopLive()
         audioStream.stopLive()
         native_stop()
@@ -73,10 +79,12 @@ class LivePusher {
     }
 
     fun setVideoCodecInfo(width: Int, height: Int, fps: Int, bitrate: Int) {
+        PLog.d("setVideoCodecInfo")
         native_setVideoCodecInfo(width, height, fps, bitrate)
     }
 
     fun setAudioCodecInfo(sampleRate: Int, channels: Int) {
+        PLog.d("setAudioCodecInfo")
         native_setAudioCodecInfo(sampleRate, channels)
     }
 
@@ -100,7 +108,23 @@ class LivePusher {
      * 从Native中传回的错误码
      */
     fun errorFromNative(errorCode: Int) {
-
+        when (errorCode) {
+            0 -> {
+                PLog.d("Alloc Errror")
+            }
+            1 -> {
+                PLog.d("SetupURL Errror")
+            }
+            2 -> {
+                PLog.d("Connect Errror")
+            }
+            3 -> {
+                PLog.d("ConnectStream Errror")
+            }
+            4 -> {
+                PLog.d("SendPacket Errror")
+            }
+        }
     }
 
     external fun native_init()

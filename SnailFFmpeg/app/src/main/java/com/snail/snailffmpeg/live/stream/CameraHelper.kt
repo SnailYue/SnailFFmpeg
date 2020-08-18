@@ -6,6 +6,7 @@ import android.hardware.Camera
 import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
+import com.snail.snailffmpeg.utils.PLog
 
 /**
  * helper类，用于操作Camera
@@ -36,6 +37,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
      * 切换摄像头
      */
     fun switchCamera() {
+        PLog.d("switchCamera")
         if (mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
             mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT
         } else {
@@ -49,6 +51,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
      * 停止预览
      */
     private fun stopPreview() {
+        PLog.d("stopPreview")
         mCamera?.apply {
             setPreviewCallback(null)
             stopFaceDetection()
@@ -60,6 +63,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
      * 开始预览
      */
     private fun startPreview() {
+        PLog.d("startPreview")
         mCamera = Camera.open(mCameraId)
         var parameters = mCamera?.parameters
         parameters?.previewFormat = ImageFormat.NV21
@@ -80,6 +84,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
      * 设置预览画面的角度
      */
     private fun setPreviewOrientation(paramters: Camera.Parameters) {
+        PLog.d("setPreviewOrientation")
         var info = Camera.CameraInfo()
         Camera.getCameraInfo(mCameraId, info)
         mRotation = mActivity.windowManager?.defaultDisplay?.rotation!!
@@ -102,7 +107,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
                 mOnChangedSizeListener.invoke(mHeight, mWidth)
             }
         }
-        var result: Int = 0
+        var result = 0
         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degress) % 360
             result = (360 - result) % 360
@@ -114,6 +119,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
 
 
     private fun setPreviewSize(parameters: Camera.Parameters) {
+        PLog.d("setPreviewSize")
         var supportedPreviewSizes: MutableList<Camera.Size> = parameters.supportedPreviewSizes
         var size = supportedPreviewSizes.get(0)
         var m = Math.abs(size.height * size.width - mWidth * mHeight)
@@ -134,6 +140,7 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
      * 设置预览
      */
     fun setPreviewDisplay(surfaceHolder: SurfaceHolder) {
+        PLog.d("setPreviewDisplay")
         mSurfaceHolder = surfaceHolder
         mSurfaceHolder.addCallback(this)
     }
@@ -142,11 +149,12 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
      * 设置预览回调
      */
     fun setPreviewCallback(previewCallback: Camera.PreviewCallback) {
+        PLog.d("setPreviewCallback")
         mPreviewCallback = previewCallback
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-        Log.d("surfaceChanged", "width = " + width + ", height = " + height)
+        PLog.d("surfaceChanged")
         stopPreview()
         startPreview()
     }
@@ -164,15 +172,14 @@ class CameraHelper : SurfaceHolder.Callback, Camera.PreviewCallback {
                 rotation90(data)
             }
             Surface.ROTATION_90 -> {
-
             }
             Surface.ROTATION_180 -> {
-
             }
             Surface.ROTATION_270 -> {
-
             }
         }
+        mPreviewCallback.onPreviewFrame(bytes, camera)
+        camera?.addCallbackBuffer(buffer)
     }
 
     /**

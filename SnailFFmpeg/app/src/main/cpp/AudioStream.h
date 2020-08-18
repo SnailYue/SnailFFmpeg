@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include "include/rtmp/rtmp.h"
 #include "include/faac/faac.h"
+#include "LogUtil.h"
 
 class AudioStream {
     typedef void (*AudioCallback)(RTMPPacket *packet);

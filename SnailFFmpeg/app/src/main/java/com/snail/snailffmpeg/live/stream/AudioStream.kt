@@ -5,6 +5,7 @@ import android.media.AudioRecord
 import android.media.MediaRecorder
 import com.snail.snailffmpeg.live.LivePusher
 import com.snail.snailffmpeg.live.model.AudioBean
+import com.snail.snailffmpeg.utils.PLog
 import kotlinx.coroutines.*
 
 
@@ -70,8 +71,9 @@ class AudioStream {
             supervisorScope {
                 launch {
                     audioRecord?.startRecording()
-                    var bytes: ByteArray = byteArrayOf()
+                    var bytes = ByteArray(inputSample)
                     while (isLiving) {
+                        PLog.d("pushAudio")
                         var len = audioRecord?.read(bytes, 0, bytes.size)
                         if (len!! > 0) {
                             mLivePusher?.pushAudio(bytes)

@@ -6,10 +6,11 @@
 #include <cstring>
 
 AudioStream::AudioStream() {
-
+    LOGI("AudioStream");
 }
 
 AudioStream::~AudioStream() {
+    LOGI("~AudioStream");
     if (audioCodec) {
         faacEncClose(audioCodec);
         audioCodec = 0;
@@ -17,10 +18,12 @@ AudioStream::~AudioStream() {
 }
 
 void AudioStream::setAudioCallback(AudioCallback audioCallback) {
+    LOGI("setAudioCallback");
     this->audioCallback = audioCallback;
 }
 
 void AudioStream::setAudioEncInfo(int samplesInHz, int channels) {
+    LOGI("setAudioEncInfo");
     mChannels = channels;
     audioCodec = faacEncOpen(static_cast<unsigned long>(samplesInHz),
                              static_cast<unsigned int>(channels),
@@ -37,6 +40,7 @@ void AudioStream::setAudioEncInfo(int samplesInHz, int channels) {
 }
 
 int AudioStream::getInputSamples() {
+    LOGI("getInputSamples");
     return static_cast<int>(inputSamples);
 }
 
@@ -45,6 +49,7 @@ int AudioStream::getInputSamples() {
  * @return
  */
 RTMPPacket *AudioStream::getAudioTag() {
+    LOGI("getAudioTag");
     u_char *buf;
     u_long len;
     faacEncGetDecoderSpecificInfo(audioCodec, &buf, &len);
@@ -72,6 +77,7 @@ RTMPPacket *AudioStream::getAudioTag() {
  * @param data
  */
 void AudioStream::encodeData(int8_t *data) {
+    LOGI("encodeData");
     int byteLen = faacEncEncode(audioCodec, reinterpret_cast<int32_t *>(data),
                                 static_cast<unsigned int>(inputSamples),
                                 buffer,

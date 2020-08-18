@@ -6,6 +6,10 @@ import androidx.multidex.MultiDex
 
 class BaseApplication : Application() {
 
+    companion object {
+        val application = this
+    }
+
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         MultiDex.install(this)

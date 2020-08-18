@@ -7,10 +7,12 @@
 #include "VideoStream.h"
 
 VideoStream::VideoStream() {
+    LOGI("VideoStream");
     pthread_mutex_init(&mutex, 0);
 }
 
 VideoStream::~VideoStream() {
+    LOGI("~VideoStream");
     pthread_mutex_destroy(&mutex);
     if (videoCodec) {
         x264_encoder_close(videoCodec);
@@ -29,6 +31,7 @@ VideoStream::~VideoStream() {
  * @param bitrate
  */
 void VideoStream::setVideoEncInfo(int width, int height, int fps, int bitrate) {
+    LOGI("setVideoEncInfo");
     pthread_mutex_lock(&mutex);
     mWidth = width;
     mHeight = height;
@@ -76,6 +79,7 @@ void VideoStream::setVideoEncInfo(int width, int height, int fps, int bitrate) {
  * @param videoCallback
  */
 void VideoStream::setVideoCallback(VideoCallback videoCallback) {
+    LOGI("setVideoCallback");
     this->videoCallback = videoCallback;
 }
 
@@ -84,6 +88,7 @@ void VideoStream::setVideoCallback(VideoCallback videoCallback) {
  * @param data
  */
 void VideoStream::encodeData(int8_t *data) {
+    LOGI("encodeData");
     pthread_mutex_lock(&mutex);
     memcpy(pic_in->img.plane[0], data, ySize);
     for (int i = 0; i < uvSize; ++i) {
@@ -121,6 +126,7 @@ void VideoStream::encodeData(int8_t *data) {
  * @param pps_len
  */
 void VideoStream::sendSpsPps(uint8_t *sps, uint8_t *pps, int sps_len, int pps_len) {
+    LOGI("SendSpsPps");
     int bodySize = 13 + sps_len + 3 + pps_len;
     RTMPPacket *packet = new RTMPPacket;
     RTMPPacket_Alloc(packet, bodySize);
@@ -168,6 +174,7 @@ void VideoStream::sendSpsPps(uint8_t *sps, uint8_t *pps, int sps_len, int pps_le
  * @param i_payload
  */
 void VideoStream::sendFrame(int type, uint8_t *payload, int i_payload) {
+    LOGI("sendFrame");
     if (payload[2] == 0x00) {
         i_payload -= 4;
         payload += 4;
