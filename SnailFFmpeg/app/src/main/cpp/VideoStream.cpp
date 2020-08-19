@@ -8,12 +8,10 @@
 
 VideoStream::VideoStream() {
     LOGI("VideoStream");
-    pthread_mutex_init(&mutex, 0);
 }
 
 VideoStream::~VideoStream() {
     LOGI("~VideoStream");
-    pthread_mutex_destroy(&mutex);
     if (videoCodec) {
         x264_encoder_close(videoCodec);
         videoCodec = 0;
@@ -32,7 +30,7 @@ VideoStream::~VideoStream() {
  */
 void VideoStream::setVideoEncInfo(int width, int height, int fps, int bitrate) {
     LOGI("setVideoEncInfo");
-    pthread_mutex_lock(&mutex);
+    unique_lock<mutex> ul(mMutex);
     mWidth = width;
     mHeight = height;
     mFps = fps;
@@ -47,6 +45,7 @@ void VideoStream::setVideoEncInfo(int width, int height, int fps, int bitrate) {
         x264_picture_clean(pic_in);
     }
     x264_param_t param;
+    //ultrafast superfast veryfast faster fast medium slow slower veryslow placebo
     x264_param_default_preset(&param, "ultrafast", "zerolatency");
     param.i_level_idc = 32;
     param.i_csp = X264_CSP_I420;
@@ -58,19 +57,19 @@ void VideoStream::setVideoEncInfo(int width, int height, int fps, int bitrate) {
     param.rc.i_vbv_buffer_size = bitrate / 1000;
     param.i_fps_num = fps;
     param.i_fps_den = 1;
-    param.i_timebase_den = param.i_fps_num;
+    param.i_timebase_den = param.i_fps_den;
     param.i_timebase_num = param.i_fps_num;
 
     param.b_vfr_input = 0;
     param.i_keyint_max = fps * 2;
     param.b_repeat_headers = 1;
     param.i_threads = 1;
+    //baseline, main, high,high10,high422,high444
     x264_param_apply_profile(&param, "baseline");
     videoCodec = x264_encoder_open(&param);
     pic_in = new x264_picture_t;
 
     x264_picture_alloc(pic_in, X264_CSP_I420, width, height);
-    pthread_mutex_unlock(&mutex);
 }
 
 
@@ -89,7 +88,7 @@ void VideoStream::setVideoCallback(VideoCallback videoCallback) {
  */
 void VideoStream::encodeData(int8_t *data) {
     LOGI("encodeData");
-    pthread_mutex_lock(&mutex);
+    unique_lock<mutex> ul(mMutex);
     memcpy(pic_in->img.plane[0], data, ySize);
     for (int i = 0; i < uvSize; ++i) {
         *(pic_in->img.plane[1] + i) = *(data + ySize + i * 2 + 1);
@@ -115,7 +114,6 @@ void VideoStream::encodeData(int8_t *data) {
             sendFrame(pp_nal[i].i_type, pp_nal[i].p_payload, pp_nal[i].i_payload);
         }
     }
-    pthread_mutex_unlock(&mutex);
 }
 
 /**

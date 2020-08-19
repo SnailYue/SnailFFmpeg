@@ -10,6 +10,9 @@
 #include <pthread.h>
 #include <inttypes.h>
 #include "LogUtil.h"
+#include <thread>
+
+using namespace std;
 
 class VideoStream {
     typedef void (*VideoCallback)(RTMPPacket *packet);
@@ -26,7 +29,7 @@ public:
     void setVideoCallback(VideoCallback videoCallback);
 
 private:
-    pthread_mutex_t mutex;
+    mutex mMutex;
     int mWidth;
     int mHeight;
     int mFps;

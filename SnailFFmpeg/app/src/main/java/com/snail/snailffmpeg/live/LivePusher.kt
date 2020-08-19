@@ -110,19 +110,19 @@ class LivePusher {
     fun errorFromNative(errorCode: Int) {
         when (errorCode) {
             0 -> {
-                PLog.d("Alloc Errror")
+                PLog.d("Alloc Error")
             }
             1 -> {
-                PLog.d("SetupURL Errror")
+                PLog.d("SetupURL Error")
             }
             2 -> {
-                PLog.d("Connect Errror")
+                PLog.d("Connect Error")
             }
             3 -> {
-                PLog.d("ConnectStream Errror")
+                PLog.d("ConnectStream Error")
             }
             4 -> {
-                PLog.d("SendPacket Errror")
+                PLog.d("SendPacket Error")
             }
         }
     }
