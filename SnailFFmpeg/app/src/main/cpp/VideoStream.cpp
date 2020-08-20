@@ -57,8 +57,8 @@ void VideoStream::setVideoEncInfo(int width, int height, int fps, int bitrate) {
     param.rc.i_vbv_buffer_size = bitrate / 1000;
     param.i_fps_num = fps;
     param.i_fps_den = 1;
-    param.i_timebase_den = param.i_fps_den;
-    param.i_timebase_num = param.i_fps_num;
+    param.i_timebase_den = param.i_fps_num;
+    param.i_timebase_num = param.i_fps_den;
 
     param.b_vfr_input = 0;
     param.i_keyint_max = fps * 2;
