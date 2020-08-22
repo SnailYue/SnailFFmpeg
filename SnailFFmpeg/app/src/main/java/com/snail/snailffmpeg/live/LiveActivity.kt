@@ -50,13 +50,13 @@ class LiveActivity : BaseActivity() {
         var width = 640
         var height = 480
         var videoBitRate = 800_000
-        var videoFrameRaote = 10
+        var videoFrameRate = 20
         var videoBean = VideoBean(
             width,
             height,
             Camera.CameraInfo.CAMERA_FACING_BACK,
             videoBitRate,
-            videoFrameRaote
+            videoFrameRate
         )
         var sampleRate = 44100
         var channelConfig = AudioFormat.CHANNEL_IN_STEREO

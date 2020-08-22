@@ -33,6 +33,7 @@ void AudioStream::setAudioEncInfo(int samplesInHz, int channels) {
     faacEncConfigurationPtr config = faacEncGetCurrentConfiguration(audioCodec);
     config->mpegVersion = MPEG4;
     config->aacObjectType = LOW;
+    //量化格式或采样深度
     config->inputFormat = FAAC_INPUT_16BIT;
     config->outputFormat = 0;
     faacEncSetConfiguration(audioCodec, config);
