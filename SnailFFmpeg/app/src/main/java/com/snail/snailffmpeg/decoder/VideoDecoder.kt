@@ -9,6 +9,10 @@ import com.snail.snailffmpeg.base.BaseDecoder
 import com.snail.snailffmpeg.base.IExtractor
 import java.nio.ByteBuffer
 
+
+/**
+ * 视频解码
+ */
 class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDecoder(path) {
 
     private val mSurfaceView = sfv
@@ -23,7 +27,7 @@ class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDec
     }
 
     override fun initExtractor(path: String): IExtractor {
-
+        return VideoExtractor(path)
     }
 
     override fun initSpecParams(format: MediaFormat) {
@@ -74,11 +78,4 @@ class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDec
     override fun doneDecode() {
     }
 
-    override fun getDuration(): Int {
-        return 0
-    }
-
-    override fun getTrack(): Int {
-        return 0
-    }
 }

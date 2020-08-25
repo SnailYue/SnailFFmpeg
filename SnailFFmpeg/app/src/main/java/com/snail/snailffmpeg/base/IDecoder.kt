@@ -27,7 +27,7 @@ interface IDecoder : Runnable {
 
     fun getWidth(): Int
 
-    fun getDuration(): Int
+    fun getDuration(): Long
 
     fun getRotationAngle(): Int
 

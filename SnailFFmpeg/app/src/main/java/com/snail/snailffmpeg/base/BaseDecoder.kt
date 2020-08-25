@@ -7,28 +7,57 @@ import com.snail.snailffmpeg.decoder.Frame
 import java.io.File
 import java.nio.ByteBuffer
 
-abstract class BaseDecoder : IDecoder {
-
+/**
+ * 解码器基类
+ */
+abstract class BaseDecoder(val mFilePath: String) : IDecoder {
+    /**
+     * 是否正在运行
+     */
     private var mIsRunning = false
 
+    /**
+     * 线程等待
+     */
     private var mLock = Object()
 
+    /**
+     * 是否可以进入解码器
+     */
     private var mReadForDecode = false
 
+    /**
+     * 音视频解码器
+     */
     private var mCodec: MediaCodec? = null
 
+    /**
+     * 音视频数据读取器
+     */
     private var mExtractor: IExtractor? = null
 
+    /**
+     * 解码输入缓冲区
+     */
     private var mInputBuffers: Array<ByteBuffer>? = null
 
+    /**
+     * 解码输出缓冲区
+     */
     private var mOutputBuffers: Array<ByteBuffer>? = null
 
+    /**
+     * 解码数据信息
+     */
     private var mBufferInfo = MediaCodec.BufferInfo()
 
     private var mState = DecodeState.STOP
 
     protected var mStateListener: IDecodeStateListener? = null
 
+    /**
+     * 数据流是否结束
+     */
     private var mIsEOS = false
 
     protected var mVideoWidth = 0
@@ -39,15 +68,15 @@ abstract class BaseDecoder : IDecoder {
 
     private var mEndPos: Long = 0
 
+    /**
+     * 开始解码时间，用于音视频同步
+     */
     private var mStartTimeForSync = -1L
 
-    private var mSYncRender = true
-
-    private var mFilePath: String? = null
-
-    constructor(filePath: String) {
-        mFilePath = filePath
-    }
+    /**
+     * 是否需要音视频同步
+     */
+    private var mSyncRender = true
 
     final override fun run() {
         if (mState == DecodeState.STOP) {
@@ -80,11 +109,11 @@ abstract class BaseDecoder : IDecoder {
             val index = pullBufferFromDecoder()
             if (index >= 0) {
                 //音视频同步
-                if (mSYncRender && mState == DecodeState.DECODEING) {
+                if (mSyncRender && mState == DecodeState.DECODEING) {
                     sleepRender()
                 }
                 //渲染
-                if (mSYncRender) {
+                if (mSyncRender) {
                     render(mOutputBuffers!![index], mBufferInfo)
                 }
                 //将解码数据传出去
@@ -300,31 +329,60 @@ abstract class BaseDecoder : IDecoder {
         return 0
     }
 
+    override fun getDuration(): Long {
+        return mDuration
+    }
+
     override fun getMediaFormat(): MediaFormat? {
         return mExtractor?.getFormat()
     }
 
+    override fun getTrack(): Int {
+        return 0
+    }
+
     override fun getFilePath(): String {
-        return mFilePath!!
+        return mFilePath
     }
 
     override fun withoutSync(): IDecoder {
-        mSYncRender = false
+        mSyncRender = false
         return this
     }
 
 
+    /**
+     * 检查子类参数
+     */
     abstract fun check(): Boolean
 
+    /**
+     * 初始化数据提取器
+     */
     abstract fun initExtractor(path: String): IExtractor
 
+    /**
+     * 初始化子类特有的参数
+     */
     abstract fun initSpecParams(format: MediaFormat)
 
+    /**
+     * 配置解码器
+     */
     abstract fun configCodec(codec: MediaCodec, format: MediaFormat): Boolean
 
+    /**
+     * 初始化渲染器
+     */
     abstract fun initRender(): Boolean
 
+    /**
+     * 渲染
+     */
     abstract fun render(outputBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo)
 
+    /**
+     * 结束解码
+     */
     abstract fun doneDecode()
 }

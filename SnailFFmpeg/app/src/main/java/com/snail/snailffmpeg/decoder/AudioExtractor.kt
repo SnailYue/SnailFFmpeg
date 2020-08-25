@@ -5,15 +5,16 @@ import com.snail.snailffmpeg.base.IExtractor
 import com.snail.snailffmpeg.base.MMExtractor
 import java.nio.ByteBuffer
 
+
 /**
- * 视频数据提取器
+ *   音频数据提取器
  */
-class VideoExtractor(path: String) : IExtractor {
+class AudioExtractor(path: String) : IExtractor {
 
     private val mMediaExtractor = MMExtractor(path)
 
     override fun getFormat(): MediaFormat? {
-        return mMediaExtractor.getVideoFormat()
+        return mMediaExtractor.getAudioFormat()
     }
 
     override fun readBuffer(byteBuffer: ByteBuffer): Int {
