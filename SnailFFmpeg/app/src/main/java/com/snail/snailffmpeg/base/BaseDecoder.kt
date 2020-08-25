@@ -24,7 +24,7 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
     /**
      * 是否可以进入解码器
      */
-    private var mReadForDecode = false
+    private var mReadyForDecode = false
 
     /**
      * 音视频解码器
@@ -34,7 +34,7 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
     /**
      * 音视频数据读取器
      */
-    private var mExtractor: IExtractor? = null
+    protected var mExtractor: IExtractor? = null
 
     /**
      * 解码输入缓冲区
@@ -141,14 +141,17 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
      * 判断是否初始化
      */
     private fun init(): Boolean {
-        if (mFilePath!!.isEmpty() || !File(mFilePath).exists()) {
-            mStateListener?.decoderError(this, "文件路径为空")
+        /**
+         * 判断路径是否正确
+         */
+        if (mFilePath.isEmpty() || !File(mFilePath).exists()) {
+            mStateListener?.decoderError(this, "文件路径异常！")
             return false
         }
         if (!check()) {
             return false
         }
-        mExtractor = initExtractor(mFilePath!!)
+        mExtractor = initExtractor(mFilePath)
         if (mExtractor == null || mExtractor!!.getFormat() == null) {
             return false
         }
@@ -220,13 +223,10 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
         var index = mCodec!!.dequeueOutputBuffer(mBufferInfo, 1000)
         when (index) {
             MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
-
             }
             MediaCodec.INFO_TRY_AGAIN_LATER -> {
-
             }
             MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED -> {
-
             }
             else -> {
                 return index
@@ -235,6 +235,9 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
         return -1
     }
 
+    /**
+     * 通过线程沉睡来实现同步
+     */
     private fun sleepRender() {
         val passTime = System.currentTimeMillis() - mStartTimeForSync
         val curTime = getCurTimeStamp()
@@ -275,7 +278,7 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
     }
 
     override fun seekTo(position: Long): Long {
-        return 0
+        return mExtractor!!.seek(position)
     }
 
     override fun resume() {
@@ -284,7 +287,9 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
     }
 
     override fun seekAndPlay(position: Long): Long {
-        return 0
+        val time = mExtractor!!.seek(position)
+        resume()
+        return time
     }
 
     override fun stop() {
@@ -337,9 +342,6 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
         return mExtractor?.getFormat()
     }
 
-    override fun getTrack(): Int {
-        return 0
-    }
 
     override fun getFilePath(): String {
         return mFilePath

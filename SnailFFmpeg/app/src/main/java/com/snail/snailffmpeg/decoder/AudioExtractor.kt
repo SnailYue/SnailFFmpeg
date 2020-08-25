@@ -40,4 +40,8 @@ class AudioExtractor(path: String) : IExtractor {
     override fun stop() {
         mMediaExtractor.stop()
     }
+
+    fun getAudioTrack(): Int {
+        return mMediaExtractor.getAudioTrack()
+    }
 }

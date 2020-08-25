@@ -19,6 +19,9 @@ class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDec
     private var mSurface = surface
 
     override fun check(): Boolean {
+        /**
+         * 检查SurfaceView是否为空
+         */
         if (mSurfaceView == null && mSurface == null) {
             mStateListener?.decoderError(this, "surfaceView为空")
             return false
@@ -26,14 +29,23 @@ class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDec
         return true
     }
 
+    /**
+     * 初始化视频数据提取器
+     */
     override fun initExtractor(path: String): IExtractor {
         return VideoExtractor(path)
     }
 
+    /**
+     * 初始化特殊参数
+     */
     override fun initSpecParams(format: MediaFormat) {
 
     }
 
+    /**
+     * 配置视频解码器参数
+     */
     override fun configCodec(codec: MediaCodec, format: MediaFormat): Boolean {
         if (mSurface != null) {
             codec.configure(format, mSurface, null, 0)
@@ -68,14 +80,24 @@ class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDec
         return true
     }
 
+    /**
+     * 初始化渲染
+     */
     override fun initRender(): Boolean {
         return true
     }
 
+    /**
+     * 渲染器
+     */
     override fun render(outputBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
     }
 
     override fun doneDecode() {
+    }
+
+    override fun getTrack(): Int {
+        return (mExtractor as VideoExtractor).getVideoTrack()
     }
 
 }

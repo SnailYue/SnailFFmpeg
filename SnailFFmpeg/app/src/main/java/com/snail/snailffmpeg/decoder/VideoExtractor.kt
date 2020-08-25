@@ -39,4 +39,8 @@ class VideoExtractor(path: String) : IExtractor {
     override fun stop() {
         mMediaExtractor.stop()
     }
+
+    fun getVideoTrack(): Int {
+        return mMediaExtractor.getVideoTrack()
+    }
 }

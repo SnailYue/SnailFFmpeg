@@ -75,4 +75,8 @@ class AudioDecoder(path: String) : BaseDecoder(path) {
         mAudiTrack?.release()
     }
 
+    override fun getTrack(): Int {
+        return (mExtractor as AudioExtractor).getAudioTrack()
+    }
+
 }
