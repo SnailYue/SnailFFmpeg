@@ -190,6 +190,9 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
         return true
     }
 
+    /**
+     * 从输入缓冲区队列中取出可用缓冲区，并填充数据
+     */
     private fun pushBufferToDecoder(): Boolean {
         var inputBufferIndex = mCodec!!.dequeueInputBuffer(1000)
         var isEndOfStream = false
@@ -219,6 +222,9 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
         return isEndOfStream
     }
 
+    /**
+     * 从输出缓冲区队列中拿到编解码后的内容
+     */
     private fun pullBufferFromDecoder(): Int {
         var index = mCodec!!.dequeueOutputBuffer(mBufferInfo, 1000)
         when (index) {
