@@ -19,7 +19,7 @@ import java.util.concurrent.Executors
 class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
 
     private var path = Environment.getExternalStorageDirectory().absolutePath + "/snailText.mp4"
-    private var muxer = MMuxer()
+    private lateinit var muxer: MMuxer
     private var audioDecoder: IDecoder? = null
     private var videoDecoder: IDecoder? = null
     private var videoEncoder: VideoEncoder? = null
@@ -29,6 +29,7 @@ class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
     override var getView: Int = R.layout.activity_encoder
 
     override fun initView() {
+        muxer = MMuxer("newSnailText.mp4")
         muxer.setStateListener(this)
         initAudioDecoder()
         initVideoDecoder(path, null)
