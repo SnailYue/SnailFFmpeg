@@ -16,6 +16,7 @@ abstract class BaseActivity : AppCompatActivity() {
     abstract var getView: Int
 
     abstract fun initView()
-    abstract fun loadData()
+
+    open fun loadData() {}
 
 }

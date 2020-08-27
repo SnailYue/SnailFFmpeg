@@ -9,14 +9,23 @@ import com.snail.snailffmpeg.base.MMuxer
 import java.lang.IllegalArgumentException
 import java.nio.ByteBuffer
 
+/**
+ * 视频编码器类
+ */
 class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, width, height) {
 
     private var mSurface: Surface? = null
 
+    /**
+     * 设置视频编码格式
+     */
     override fun encodeType(): String {
         return "video/avc"
     }
 
+    /**
+     * 设置视频编码参数
+     */
     override fun configEncoder(codec: MediaCodec) {
         if (mWidth <= 0 || mHeight <= 0) {
             throw IllegalArgumentException("Encode width or height is invalid, width: $mWidth, height: $mHeight")
@@ -33,6 +42,9 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
         configEncoderWithCQ(codec, outputFormat)
     }
 
+    /**
+     * 设置码率 CQ
+     */
     private fun configEncoderWithCQ(codec: MediaCodec, outputFormat: MediaFormat) {
         outputFormat.setInteger(
             MediaFormat.KEY_BITRATE_MODE,
@@ -41,6 +53,9 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
         codec.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
 
+    /**
+     * 设置码率 VBR
+     */
     private fun configEncodeWithVBR(codec: MediaCodec, outputFormat: MediaFormat) {
         outputFormat.setInteger(
             MediaFormat.KEY_BITRATE_MODE,
@@ -53,6 +68,9 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
         muxer.addVideoTrack(mediaFormat)
     }
 
+    /**
+     * 写编码数据
+     */
     override fun writeData(
         muxer: MMuxer,
         byteBuffer: ByteBuffer,
@@ -64,6 +82,7 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
     override fun encodeManually(): Boolean {
         return false
     }
+
 
     override fun release(muxer: MMuxer) {
         muxer.releaseVideoTrack()

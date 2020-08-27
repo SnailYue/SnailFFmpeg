@@ -5,6 +5,10 @@ import com.snail.snailffmpeg.base.BaseDecoder
 import com.snail.snailffmpeg.base.IExtractor
 import java.nio.ByteBuffer
 
+
+/**
+ * 音频解码器类
+ */
 class AudioDecoder(path: String) : BaseDecoder(path) {
 
     private var mSampleRate = -1
@@ -22,10 +26,16 @@ class AudioDecoder(path: String) : BaseDecoder(path) {
         return true
     }
 
+    /**
+     * 实例音频提取器
+     */
     override fun initExtractor(path: String): IExtractor {
         return AudioExtractor(path)
     }
 
+    /**
+     * 初始化特殊参数
+     */
     override fun initSpecParams(format: MediaFormat) {
         mChannels = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
         mSampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE)
@@ -36,11 +46,17 @@ class AudioDecoder(path: String) : BaseDecoder(path) {
                 AudioFormat.ENCODING_PCM_16BIT
     }
 
+    /**
+     * 配置解码器
+     */
     override fun configCodec(codec: MediaCodec, format: MediaFormat): Boolean {
         codec.configure(format, null, null, 0)
         return true
     }
 
+    /**
+     * 初始化渲染器
+     */
     override fun initRender(): Boolean {
         val channel = if (mChannels == 1) {
             AudioFormat.CHANNEL_OUT_MONO
@@ -61,6 +77,9 @@ class AudioDecoder(path: String) : BaseDecoder(path) {
         return true
     }
 
+    /**
+     * 渲染
+     */
     override fun render(outputBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
         if (mAudioOutTempBuf!!.size < bufferInfo.size / 2) {
             mAudioOutTempBuf = ShortArray(bufferInfo.size / 2)
@@ -70,6 +89,9 @@ class AudioDecoder(path: String) : BaseDecoder(path) {
         mAudiTrack!!.write(mAudioOutTempBuf!!, 0, bufferInfo.size / 2)
     }
 
+    /**
+     * 解码完成
+     */
     override fun doneDecode() {
         mAudiTrack?.stop()
         mAudiTrack?.release()

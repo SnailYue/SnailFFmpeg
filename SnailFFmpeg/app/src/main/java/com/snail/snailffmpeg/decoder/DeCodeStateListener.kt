@@ -7,7 +7,7 @@ interface DeCodeStateListener : IDecodeStateListener {
     override fun decoderDestroy(decode: BaseDecoder?) {
     }
 
-    override fun decoderError(decode: BaseDecoder?) {
+    override fun decoderError(decode: BaseDecoder?, msg: String) {
     }
 
     override fun decoderFinish(decode: BaseDecoder?) {

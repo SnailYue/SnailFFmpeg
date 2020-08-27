@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
 
 
 /**
- * 视频解码
+ * 视频解码器类
  */
 class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDecoder(path) {
 

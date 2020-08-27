@@ -22,11 +22,6 @@ class MainActivity : BaseActivity() {
         needCameraPermissionWithPermissionCheck()
     }
 
-    override fun loadData() {
-
-    }
-
-
     @NeedsPermission(
         Manifest.permission.CAMERA,
         Manifest.permission.RECORD_AUDIO,

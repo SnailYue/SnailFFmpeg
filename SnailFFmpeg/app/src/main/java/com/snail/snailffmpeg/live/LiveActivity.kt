@@ -39,10 +39,6 @@ class LiveActivity : BaseActivity() {
         initPusher()
     }
 
-    override fun loadData() {
-
-    }
-
     /**
      * 初始化
      */

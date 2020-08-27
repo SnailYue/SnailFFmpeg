@@ -9,14 +9,20 @@ import java.nio.ByteBuffer
 
 
 /**
- * 音频编码器
+ * 音频编码器类
  */
 class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
 
+    /**
+     * 编码类型
+     */
     override fun encodeType(): String {
         return "audio/mp4a-latm"
     }
 
+    /**
+     * 配置编码器的参数
+     */
     override fun configEncoder(codec: MediaCodec) {
         val audioFormat = MediaFormat.createAudioFormat(encodeType(), 44100, 2)
         audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 44100)
@@ -24,6 +30,9 @@ class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
         configEncoderWithCQ(codec, audioFormat)
     }
 
+    /**
+     * 设置CQ码率
+     */
     private fun configEncoderWithCQ(codec: MediaCodec, outputFormat: MediaFormat) {
         outputFormat.setInteger(
             MediaFormat.KEY_BITRATE_MODE,
@@ -32,6 +41,9 @@ class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
         codec.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
 
+    /**
+     * 设置VBR码率
+     */
     private fun configEncodeWithVBR(codec: MediaCodec, outputFormat: MediaFormat) {
         outputFormat.setInteger(
             MediaFormat.KEY_BITRATE_MODE,
@@ -48,6 +60,9 @@ class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
         return 5
     }
 
+    /**
+     * 写音频数据
+     */
     override fun writeData(
         muxer: MMuxer,
         byteBuffer: ByteBuffer,
@@ -56,6 +71,9 @@ class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
         muxer.writeAudioData(byteBuffer, bufferInfo)
     }
 
+    /**
+     * 释放
+     */
     override fun release(muxer: MMuxer) {
         muxer.releaseAudioTrack()
     }

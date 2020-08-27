@@ -4,6 +4,10 @@ import android.media.MediaExtractor
 import android.media.MediaFormat
 import java.nio.ByteBuffer
 
+
+/**
+ * 音视频分离器
+ */
 class MMExtractor(path: String?) {
 
     /**
