@@ -1,6 +1,8 @@
 package com.snail.snailffmpeg.encoder
 
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Environment
 import android.view.Surface
 import com.snail.snailffmpeg.R
@@ -18,6 +20,14 @@ import java.util.concurrent.Executors
  */
 class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
 
+    companion object {
+
+        @JvmStatic
+        fun start(activity: Activity) {
+            activity.startActivity(Intent(activity, EncoderActivity::class.java))
+        }
+    }
+
     private var path = Environment.getExternalStorageDirectory().absolutePath + "/snailText.mp4"
     private lateinit var muxer: MMuxer
     private var audioDecoder: IDecoder? = null
@@ -33,8 +43,8 @@ class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
         muxer.setStateListener(this)
         initAudioDecoder()
         initVideoDecoder(path, null)
-        initVideoEncoder()
         initAudioEncoder()
+        initVideoEncoder()
     }
 
     /**

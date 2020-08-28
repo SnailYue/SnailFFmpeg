@@ -3,6 +3,7 @@ package com.snail.snailffmpeg.encoder
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
+import android.util.Log
 import com.snail.snailffmpeg.base.BaseEncoder
 import com.snail.snailffmpeg.base.MMuxer
 import java.nio.ByteBuffer
@@ -12,6 +13,8 @@ import java.nio.ByteBuffer
  * 音频编码器类
  */
 class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
+
+    private val TAG = AudioEncoder::class.java.simpleName
 
     /**
      * 编码类型
@@ -27,13 +30,24 @@ class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
         val audioFormat = MediaFormat.createAudioFormat(encodeType(), 44100, 2)
         audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 44100)
         audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 100 * 1024)
-        configEncoderWithCQ(codec, audioFormat)
+
+        try {
+            configEncodeWithCQ(codec, audioFormat)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            try {
+                configEncodeWithVBR(codec, audioFormat)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.d(TAG, "配置音频参数失败")
+            }
+        }
     }
 
     /**
      * 设置CQ码率
      */
-    private fun configEncoderWithCQ(codec: MediaCodec, outputFormat: MediaFormat) {
+    private fun configEncodeWithCQ(codec: MediaCodec, outputFormat: MediaFormat) {
         outputFormat.setInteger(
             MediaFormat.KEY_BITRATE_MODE,
             MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ

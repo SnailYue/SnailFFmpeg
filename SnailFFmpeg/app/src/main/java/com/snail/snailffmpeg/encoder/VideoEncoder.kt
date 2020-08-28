@@ -3,9 +3,11 @@ package com.snail.snailffmpeg.encoder
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
+import android.util.Log
 import android.view.Surface
 import com.snail.snailffmpeg.base.BaseEncoder
 import com.snail.snailffmpeg.base.MMuxer
+import java.lang.Exception
 import java.lang.IllegalArgumentException
 import java.nio.ByteBuffer
 
@@ -13,6 +15,8 @@ import java.nio.ByteBuffer
  * 视频编码器类
  */
 class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, width, height) {
+
+    private val TAG = VideoEncoder::class.java.simpleName
 
     private var mSurface: Surface? = null
 
@@ -39,7 +43,18 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
             MediaFormat.KEY_COLOR_FORMAT,
             MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
         )
-        configEncoderWithCQ(codec, outputFormat)
+        try {
+            configEncoderWithCQ(codec, outputFormat)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            try {
+                configEncodeWithVBR(codec, outputFormat)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e(TAG, "配置视频编码异常")
+            }
+        }
+        mSurface = codec.createInputSurface()
     }
 
     /**

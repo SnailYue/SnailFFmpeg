@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
 
 
 /**
- * 音视频分离器
+ * 音视频分离器  多媒体格式分离
  */
 class MMExtractor(path: String?) {
 
@@ -26,12 +26,12 @@ class MMExtractor(path: String?) {
     private var mVideoTrack = -1
 
     /**
-     * 当前帧时间戳
+     * 当前帧采样时间
      */
     private var mCurSampleTime: Long = 0
 
     /**
-     * 当前帧标志
+     * 当前帧采样标志
      */
     private var mCurSampleFlags: Int = 0
 
@@ -50,13 +50,14 @@ class MMExtractor(path: String?) {
 
 
     /**
-     * 获取视频格式参数
+     * 获取视频格式轨道参数
      */
     fun getVideoFormat(): MediaFormat? {
         for (i in 0..mExtractor!!.trackCount) {
             val mediaFormat = mExtractor!!.getTrackFormat(i)
             var mime = mediaFormat.getString(MediaFormat.KEY_MIME)
             if (mime.startsWith("video/")) {
+                //视频通道索引
                 mVideoTrack = i
                 break
             }
@@ -67,12 +68,13 @@ class MMExtractor(path: String?) {
     }
 
     /**
-     * 获取音频格式参数
+     * 获取音频格式通道参数
      */
     fun getAudioFormat(): MediaFormat? {
         for (i in 0..mExtractor!!.trackCount) {
             var mediaFormat = mExtractor!!.getTrackFormat(i)
             var mime = mediaFormat.getString(MediaFormat.KEY_MIME)
+            //音频轨道索引
             if (mime.startsWith("audio/")) {
                 mAudioTrack = i
                 break
@@ -95,6 +97,9 @@ class MMExtractor(path: String?) {
         }
         mCurSampleTime = mExtractor!!.sampleTime
         mCurSampleFlags = mExtractor!!.sampleFlags
+        /**
+         * 读取下一帧
+         */
         mExtractor!!.advance()
         return readSampleCount
     }
@@ -126,10 +131,16 @@ class MMExtractor(path: String?) {
         mExtractor = null
     }
 
+    /**
+     * 获取视频通道索引
+     */
     fun getVideoTrack(): Int {
         return mVideoTrack
     }
 
+    /**
+     * 获取音频通道索引
+     */
     fun getAudioTrack(): Int {
         return mAudioTrack
     }
@@ -139,12 +150,15 @@ class MMExtractor(path: String?) {
     }
 
     /**
-     * 当前帧时间
+     * 当前采样时间
      */
     fun getCurrentTimeStamp(): Long {
         return mCurSampleTime
     }
 
+    /**
+     * 采样标志
+     */
     fun getSampleFlag(): Int {
         return mCurSampleFlags
     }

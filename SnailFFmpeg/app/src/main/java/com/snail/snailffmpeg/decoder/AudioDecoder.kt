@@ -97,6 +97,9 @@ class AudioDecoder(path: String) : BaseDecoder(path) {
         mAudiTrack?.release()
     }
 
+    /**
+     * 获取音频通道索引
+     */
     override fun getTrack(): Int {
         return (mExtractor as AudioExtractor).getAudioTrack()
     }

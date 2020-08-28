@@ -3,6 +3,7 @@ package com.snail.snailffmpeg
 
 import android.Manifest
 import com.snail.snailffmpeg.base.BaseActivity
+import com.snail.snailffmpeg.encoder.EncoderActivity
 import com.snail.snailffmpeg.extends.hide
 import com.snail.snailffmpeg.live.LiveActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -28,9 +29,18 @@ class MainActivity : BaseActivity() {
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
     fun needCameraPermission() {
-        LiveActivity.start(this)
+        clickEnvent()
     }
 
+
+    fun clickEnvent() {
+        bt_live.setOnClickListener {
+            LiveActivity.start(this)
+        }
+        bt_mediacodec.setOnClickListener {
+            EncoderActivity.start(this)
+        }
+    }
 
     @NeedsPermission(
         Manifest.permission.CAMERA,

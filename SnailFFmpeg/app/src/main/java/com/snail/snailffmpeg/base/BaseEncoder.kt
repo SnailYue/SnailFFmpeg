@@ -70,7 +70,7 @@ abstract class BaseEncoder(muxer: MMuxer, width: Int = -1, height: Int = -1) : R
      * 初始化编码器
      */
     private fun initCodec() {
-        mCodec = MediaCodec.createDecoderByType(encodeType())
+        mCodec = MediaCodec.createEncoderByType(encodeType())
         configEncoder(mCodec)
         mCodec.start()
         mOutputBuffers = mCodec.outputBuffers

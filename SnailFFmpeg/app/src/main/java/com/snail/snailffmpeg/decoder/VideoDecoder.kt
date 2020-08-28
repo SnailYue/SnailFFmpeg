@@ -93,9 +93,15 @@ class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDec
     override fun render(outputBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
     }
 
+    /**
+     * 完成解码
+     */
     override fun doneDecode() {
     }
 
+    /**
+     * 获取通道索引
+     */
     override fun getTrack(): Int {
         return (mExtractor as VideoExtractor).getVideoTrack()
     }
