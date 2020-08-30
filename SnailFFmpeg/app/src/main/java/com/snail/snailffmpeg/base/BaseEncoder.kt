@@ -2,6 +2,8 @@ package com.snail.snailffmpeg.base
 
 import android.media.MediaCodec
 import android.media.MediaFormat
+import android.nfc.Tag
+import android.util.Log
 import com.snail.snailffmpeg.decoder.Frame
 import java.nio.ByteBuffer
 
@@ -10,6 +12,8 @@ import java.nio.ByteBuffer
  * 基类编码器
  */
 abstract class BaseEncoder(muxer: MMuxer, width: Int = -1, height: Int = -1) : Runnable {
+
+    val TAG = BaseEncoder::class.java.simpleName
 
     protected var mWidth: Int = width
 
@@ -92,8 +96,7 @@ abstract class BaseEncoder(muxer: MMuxer, width: Int = -1, height: Int = -1) : R
             }
             if (empty) {
                 justWait()
-            }
-            if (mFrames.isNotEmpty()) {
+            } else {
                 val frame = synchronized(mFrames) {
                     mFrames.removeAt(0)
                 }
@@ -161,6 +164,7 @@ abstract class BaseEncoder(muxer: MMuxer, width: Int = -1, height: Int = -1) : R
                     if (mBufferInfo.flags == MediaCodec.BUFFER_FLAG_END_OF_STREAM) {
                         mIsEOS = true
                         mBufferInfo.set(0, 0, 0, mBufferInfo.flags)
+                        Log.d(TAG, "编码结束")
                     }
                     if (mBufferInfo.flags == MediaCodec.BUFFER_FLAG_CODEC_CONFIG) {
                         mCodec.releaseOutputBuffer(index, false)

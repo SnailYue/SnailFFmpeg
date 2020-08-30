@@ -7,6 +7,13 @@ import java.nio.ByteBuffer
 
 /**
  * 音视频分离器  多媒体格式分离
+ * 1.setDataSource(path : String) 设置文件路径
+ * 2.getTrackCount() 获取通道数
+ * 3.getTrackFormat(index : Int) 指定通道的通道格式
+ * 4.getSampleTime()  返回当前的事件戳
+ * 5.readSampleData(byteBuffer : ByteBuffer,offset : Int) 把指定通道中的数据按偏移量读取到ByteBuffer中
+ * 6.advance() 读取下一帧数据
+ * 7.release() 释放资源
  */
 class MMExtractor(path: String?) {
 

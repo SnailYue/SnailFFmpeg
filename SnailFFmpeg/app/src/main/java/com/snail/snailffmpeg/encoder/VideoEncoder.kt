@@ -4,7 +4,6 @@ import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.util.Log
-import android.view.Surface
 import com.snail.snailffmpeg.base.BaseEncoder
 import com.snail.snailffmpeg.base.MMuxer
 import java.lang.Exception
@@ -13,12 +12,10 @@ import java.nio.ByteBuffer
 
 /**
  * 视频编码器类
+ *
+ * 用于设置视频通道的参数及控制数据的写入
  */
 class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, width, height) {
-
-    private val TAG = VideoEncoder::class.java.simpleName
-
-    private var mSurface: Surface? = null
 
     /**
      * 设置视频编码格式
@@ -54,7 +51,6 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
                 Log.e(TAG, "配置视频编码异常")
             }
         }
-        mSurface = codec.createInputSurface()
     }
 
     /**
@@ -79,6 +75,9 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
         codec.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
 
+    /**
+     * 添加视频通道
+     */
     override fun addTrack(muxer: MMuxer, mediaFormat: MediaFormat) {
         muxer.addVideoTrack(mediaFormat)
     }
@@ -99,12 +98,11 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
     }
 
 
+    /**
+     * 释放
+     */
     override fun release(muxer: MMuxer) {
         muxer.releaseVideoTrack()
-    }
-
-    fun getEncodeSurface(): Surface? {
-        return mSurface
     }
 
 }

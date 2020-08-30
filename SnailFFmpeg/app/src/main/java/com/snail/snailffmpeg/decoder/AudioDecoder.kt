@@ -65,6 +65,7 @@ class AudioDecoder(path: String) : BaseDecoder(path) {
         }
 
         val minBufferSize = AudioTrack.getMinBufferSize(mSampleRate, channel, mPCMEncodeBit)
+        mAudioOutTempBuf = ShortArray(minBufferSize / 2)
         mAudiTrack = AudioTrack(
             AudioManager.STREAM_MUSIC,
             mSampleRate,

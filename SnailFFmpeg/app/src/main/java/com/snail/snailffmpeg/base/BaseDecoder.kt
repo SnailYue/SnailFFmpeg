@@ -2,19 +2,24 @@ package com.snail.snailffmpeg.base
 
 import android.media.MediaCodec
 import android.media.MediaFormat
+import android.util.Log
 import com.snail.snailffmpeg.constant.DecodeState
 import com.snail.snailffmpeg.decoder.Frame
 import java.io.File
+import java.lang.Exception
 import java.nio.ByteBuffer
 
 /**
  * 解码器基类
  */
 abstract class BaseDecoder(val mFilePath: String) : IDecoder {
+
+    val TAG = BaseDecoder::class.java.simpleName
+
     /**
      * 是否正在运行
      */
-    private var mIsRunning = false
+    private var mIsRunning = true
 
     /**
      * 线程等待
@@ -32,7 +37,7 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
     private var mCodec: MediaCodec? = null
 
     /**
-     * 音视频数据读取器
+     * 音视频通道数据提取器
      */
     protected var mExtractor: IExtractor? = null
 
@@ -87,54 +92,63 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
         if (!init()) {
             return
         }
-        while (mIsRunning) {
-            if (mState != DecodeState.START && mState != DecodeState.DECODEING && mState != DecodeState.SEEKING) {
-                waitDecode()
-                //恢复同步的起始时间，即去除等待流失的时间
-                mStartTimeForSync = System.currentTimeMillis() - getCurTimeStamp()
-            }
-            if (!mIsRunning || mState == DecodeState.STOP) {
-                mIsRunning = false
-                break
-            }
-            if (mStartTimeForSync == -1L) {
-                mStartTimeForSync = System.currentTimeMillis()
-            }
-            // 如果数据没有解码完毕，将数据推入解码器解码
-            if (!mIsEOS) {
-                //将数据压入解码器输入缓冲
-                mIsEOS = pushBufferToDecoder()
-            }
-            // 将解码器中好的数据冲缓冲区拉取出来
-            val index = pullBufferFromDecoder()
-            if (index >= 0) {
-                //音视频同步
-                if (mSyncRender && mState == DecodeState.DECODEING) {
-                    sleepRender()
+        Log.d(TAG, "开始解码")
+        try {
+
+            while (mIsRunning) {
+                Log.d(TAG, "解码中...")
+                if (mState != DecodeState.START && mState != DecodeState.DECODEING && mState != DecodeState.SEEKING) {
+                    waitDecode()
+                    //恢复同步的起始时间，即去除等待流失的时间
+                    mStartTimeForSync = System.currentTimeMillis() - getCurTimeStamp()
                 }
-                //渲染
-                if (mSyncRender) {
-                    render(mOutputBuffers!![index], mBufferInfo)
+                if (!mIsRunning || mState == DecodeState.STOP) {
+                    mIsRunning = false
+                    break
                 }
-                //将解码数据传出去
-                val frame = Frame()
-                frame.buffer = mOutputBuffers!![index]
-                frame.setBufferInfo(mBufferInfo)
-                mStateListener?.decoderOneFrame(this, frame)
-                //释放输入缓冲
-                mCodec!!.releaseOutputBuffer(index, true)
-                if (mState == DecodeState.START) {
-                    mState = DecodeState.PAUSE
+                if (mStartTimeForSync == -1L) {
+                    mStartTimeForSync = System.currentTimeMillis()
+                }
+                // 如果数据没有解码完毕，将数据推入解码器解码
+                if (!mIsEOS) {
+                    //将数据压入解码器输入缓冲
+                    mIsEOS = pushBufferToDecoder()
+                }
+                // 将解码器中好的数据冲缓冲区拉取出来
+                val index = pullBufferFromDecoder()
+                if (index >= 0) {
+                    //音视频同步
+                    if (mSyncRender && mState == DecodeState.DECODEING) {
+                        sleepRender()
+                    }
+                    //渲染
+                    if (mSyncRender) {
+                        render(mOutputBuffers!![index], mBufferInfo)
+                    }
+                    //将解码数据传出去
+                    val frame = Frame()
+                    frame.buffer = mOutputBuffers!![index]
+                    frame.setBufferInfo(mBufferInfo)
+                    mStateListener?.decoderOneFrame(this, frame)
+                    //释放输入缓冲
+                    mCodec!!.releaseOutputBuffer(index, true)
+                    if (mState == DecodeState.START) {
+                        mState = DecodeState.PAUSE
+                    }
+                }
+                //判断解码是否完成
+                if (mBufferInfo.flags == MediaCodec.BUFFER_FLAG_END_OF_STREAM) {
+                    Log.d(TAG, "解码结束")
+                    mState = DecodeState.FINISH
+                    mStateListener?.decoderFinish(this)
                 }
             }
-            //判断解码是否完成
-            if (mBufferInfo.flags == MediaCodec.BUFFER_FLAG_END_OF_STREAM) {
-                mState = DecodeState.FINISH
-                mStateListener?.decoderFinish(this)
-            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            doneDecode()
+            release()
         }
-        doneDecode()
-        release()
     }
 
     /**
@@ -145,48 +159,69 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
          * 判断路径是否正确
          */
         if (mFilePath.isEmpty() || !File(mFilePath).exists()) {
-            mStateListener?.decoderError(this, "文件路径异常！")
+            mStateListener?.decoderError(this, "file path null")
             return false
         }
         if (!check()) {
+            mStateListener?.decoderError(this, "check false")
             return false
         }
+        /**
+         * 获取音视频通道数据提取器
+         */
         mExtractor = initExtractor(mFilePath)
+
         if (mExtractor == null || mExtractor!!.getFormat() == null) {
+            mStateListener?.decoderError(this, "mExtractor null")
             return false
         }
 
         if (!initParams()) {
+            mStateListener?.decoderError(this, "initParams false")
             return false
         }
         if (!initRender()) {
+            mStateListener?.decoderError(this, "initParams false")
             return false
         }
         if (!initCodec()) {
+            mStateListener?.decoderError(this, "initCodec false")
             return false
         }
         return true
     }
 
     private fun initParams(): Boolean {
-        val format = mExtractor!!.getFormat()!!
-        mDuration = format.getLong(MediaFormat.KEY_DURATION) / 1000
-        if (mEndPos == 0L) {
-            mEndPos = mDuration
+        try {
+            val format = mExtractor!!.getFormat()!!
+            mDuration = format.getLong(MediaFormat.KEY_DURATION) / 1000
+            if (mEndPos == 0L) {
+                mEndPos = mDuration
+            }
+            initSpecParams(mExtractor!!.getFormat()!!)
+        } catch (e: Exception) {
+            return false
         }
-        initSpecParams(mExtractor!!.getFormat()!!)
         return true
     }
 
+    /**
+     * 设置MediaCodec的MediaFormat信息
+     */
     private fun initCodec(): Boolean {
-        val type = mExtractor!!.getFormat()!!.getString(MediaFormat.KEY_MIME)
-        mCodec = MediaCodec.createDecoderByType(type)
-        if (!configCodec(mCodec!!, mExtractor!!.getFormat()!!)) {
-            waitDecode()
+        try {
+            val type = mExtractor!!.getFormat()!!.getString(MediaFormat.KEY_MIME)
+            mCodec = MediaCodec.createDecoderByType(type)
+            if (!configCodec(mCodec!!, mExtractor!!.getFormat()!!)) {
+                Log.d(TAG, "MediaFormat configCodec false")
+                waitDecode()
+            }
+            mCodec!!.start()
+            mInputBuffers = mCodec?.inputBuffers
+            mOutputBuffers = mCodec?.outputBuffers
+        } catch (e: Exception) {
+            return false
         }
-        mCodec!!.start()
-        mInputBuffers = mCodec?.inputBuffers
-        mOutputBuffers = mCodec?.outputBuffers
         return true
     }
 
@@ -201,6 +236,9 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
             val inputBuffer = mInputBuffers!![inputBufferIndex]
             val sampleSize = mExtractor!!.readBuffer(inputBuffer)
             if (sampleSize < 0) {
+                /**
+                 * 进入EOS状态
+                 */
                 mCodec!!.queueInputBuffer(
                     inputBufferIndex,
                     0,
@@ -253,6 +291,7 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
     }
 
     private fun release() {
+        Log.d(TAG, "停止解码")
         mState = DecodeState.STOP
         mIsEOS = false
         mExtractor?.stop()
@@ -284,7 +323,7 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
     }
 
     override fun seekTo(position: Long): Long {
-        return mExtractor!!.seek(position)
+        return 0
     }
 
     override fun resume() {
@@ -293,9 +332,7 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
     }
 
     override fun seekAndPlay(position: Long): Long {
-        val time = mExtractor!!.seek(position)
-        resume()
-        return time
+        return 0
     }
 
     override fun stop() {

@@ -15,17 +15,7 @@ import java.nio.ByteBuffer
  */
 class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDecoder(path) {
 
-    private val mSurfaceView = sfv
-    private var mSurface = surface
-
     override fun check(): Boolean {
-        /**
-         * 检查SurfaceView是否为空
-         */
-        if (mSurfaceView == null && mSurface == null) {
-            mStateListener?.decoderError(this, "surfaceView为空")
-            return false
-        }
         return true
     }
 
@@ -47,36 +37,7 @@ class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDec
      * 配置视频解码器参数
      */
     override fun configCodec(codec: MediaCodec, format: MediaFormat): Boolean {
-        if (mSurface != null) {
-            codec.configure(format, mSurface, null, 0)
-            notifyDecode()
-        } else if (mSurfaceView?.holder?.surface != null) {
-            mSurface = mSurfaceView?.holder?.surface
-            configCodec(codec, format)
-        } else {
-            mSurfaceView?.holder?.addCallback(object : SurfaceHolder.Callback2 {
-                override fun surfaceRedrawNeeded(holder: SurfaceHolder?) {
-                }
-
-                override fun surfaceChanged(
-                    holder: SurfaceHolder?,
-                    format: Int,
-                    width: Int,
-                    height: Int
-                ) {
-                }
-
-                override fun surfaceDestroyed(holder: SurfaceHolder?) {
-                }
-
-                override fun surfaceCreated(holder: SurfaceHolder?) {
-                    mSurface = holder?.surface
-                    configCodec(codec, format)
-                }
-
-            })
-            return false
-        }
+        codec.configure(format, null, null, 0)
         return true
     }
 
@@ -91,6 +52,7 @@ class VideoDecoder(path: String, sfv: SurfaceView?, surface: Surface?) : BaseDec
      * 渲染器
      */
     override fun render(outputBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
+
     }
 
     /**

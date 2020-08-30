@@ -11,10 +11,10 @@ import java.nio.ByteBuffer
 
 /**
  * 音频编码器类
+ *
+ * 用于设置音频通道的参数及写入操作
  */
 class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
-
-    private val TAG = AudioEncoder::class.java.simpleName
 
     /**
      * 编码类型
@@ -28,7 +28,7 @@ class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
      */
     override fun configEncoder(codec: MediaCodec) {
         val audioFormat = MediaFormat.createAudioFormat(encodeType(), 44100, 2)
-        audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 44100)
+        audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 128000)
         audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 100 * 1024)
 
         try {
@@ -66,10 +66,16 @@ class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
         codec.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
 
+    /**
+     * 添加音频通道
+     */
     override fun addTrack(muxer: MMuxer, mediaFormat: MediaFormat) {
         muxer.addAudioTrack(mediaFormat)
     }
 
+    /**
+     * 设置等待时间
+     */
     override fun frameWaitTimeMs(): Long {
         return 5
     }

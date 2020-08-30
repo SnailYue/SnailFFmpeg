@@ -67,7 +67,7 @@ class MMuxer(fileName: String) {
     }
 
     /**
-     * 添加视频轨道
+     * 1.添加视频轨道
      */
     fun addVideoTrack(mediaFormat: MediaFormat) {
         if (mIsVideoTrackAdd) return
@@ -79,7 +79,7 @@ class MMuxer(fileName: String) {
     }
 
     /**
-     * 添加音频轨道
+     * 1.添加音频轨道
      */
     fun addAudioTrack(mediaFormat: MediaFormat) {
         if (mIsAudioTrackAdd) return
@@ -92,7 +92,7 @@ class MMuxer(fileName: String) {
 
 
     /**
-     * 写视频数据
+     * 3.写视频数据
      */
     fun writeVideoData(byteBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
         if (mIsStart) {
@@ -101,7 +101,7 @@ class MMuxer(fileName: String) {
     }
 
     /**
-     * 写音频数据
+     * 3.写音频数据
      */
     fun writeAudioData(byteBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
         if (mIsStart) {
@@ -110,7 +110,7 @@ class MMuxer(fileName: String) {
     }
 
     /**
-     * 开始封装
+     * 2.开始封装
      */
     private fun startMuxer() {
         if (mIsAudioTrackAdd && mIsVideoTrackAdd) {
@@ -137,7 +137,7 @@ class MMuxer(fileName: String) {
     }
 
     /**
-     * 释放封装相关
+     * 4.释放封装相关(先stop(),再release())
      */
     private fun release() {
         if (mIsAudioEnd && mIsVideoEnd) {
@@ -161,8 +161,14 @@ class MMuxer(fileName: String) {
      * 合成器状态监听接口
      */
     interface IMuxerStateListener {
+        /**
+         * 开始封装
+         */
         fun onMuxerStart() {}
 
+        /**
+         * 封装完成
+         */
         fun onMuxerFinish() {}
     }
 
