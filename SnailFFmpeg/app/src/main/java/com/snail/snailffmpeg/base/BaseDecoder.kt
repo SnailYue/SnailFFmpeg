@@ -14,9 +14,8 @@ import java.nio.ByteBuffer
  */
 abstract class BaseDecoder(val mFilePath: String) : IDecoder {
 
-    private val TAG = "BaseDecoder"
+    private val TAG = BaseDecoder::class.java.simpleName
 
-    //-------------线程相关------------------------
     /**
      * 解码器是否在运行
      */
@@ -27,12 +26,6 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
      */
     private val mLock = Object()
 
-    /**
-     * 是否可以进入解码
-     */
-    private var mReadyForDecode = false
-
-    //---------------状态相关-----------------------
     /**
      * 音视频解码器
      */
@@ -73,8 +66,6 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
 
     private var mDuration: Long = 0
 
-    private var mStartPos: Long = 0
-
     private var mEndPos: Long = 0
 
     /**
@@ -93,7 +84,6 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
 
         //【解码步骤：1. 初始化，并启动解码器】
         if (!init()) return
-
         Log.i(TAG, "开始解码")
         try {
             while (mIsRunning) {
@@ -200,9 +190,9 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
             val format = mExtractor!!.getFormat()!!
             mDuration = format.getLong(MediaFormat.KEY_DURATION) / 1000
             if (mEndPos == 0L) mEndPos = mDuration
-
             initSpecParams(mExtractor!!.getFormat()!!)
         } catch (e: Exception) {
+            mStateListener?.decoderError(this, "initPatams failed")
             return false
         }
         return true
@@ -220,6 +210,7 @@ abstract class BaseDecoder(val mFilePath: String) : IDecoder {
             mInputBuffers = mCodec?.inputBuffers
             mOutputBuffers = mCodec?.outputBuffers
         } catch (e: Exception) {
+            mStateListener?.decoderError(this, "initCodec failed")
             return false
         }
         return true

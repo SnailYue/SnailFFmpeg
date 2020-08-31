@@ -13,7 +13,7 @@ import java.nio.ByteBuffer
  */
 abstract class BaseEncoder(muxer: MMuxer, width: Int = -1, height: Int = -1) : Runnable {
 
-    private val TAG = "BaseEncoder"
+    private val TAG = BaseEncoder::class.java.simpleName
 
     // 目标视频宽，只有视频编码的时候才有效
     protected val mWidth: Int = width
@@ -104,9 +104,7 @@ abstract class BaseEncoder(muxer: MMuxer, width: Int = -1, height: Int = -1) : R
      * 编码
      */
     private fun encode(frame: Frame) {
-
         val index = mCodec.dequeueInputBuffer(-1)
-
         /*向编码器输入数据*/
         if (index >= 0) {
             val inputBuffer = mInputBuffers!![index]

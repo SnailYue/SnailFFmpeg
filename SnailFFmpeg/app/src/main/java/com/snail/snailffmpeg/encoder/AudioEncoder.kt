@@ -17,7 +17,7 @@ import java.nio.ByteBuffer
  */
 class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
 
-    private val TAG = "AudioEncoder"
+    private val TAG = AudioEncoder::class.java.simpleName
 
     override fun encodeType(): String {
         return "audio/mp4a-latm"
@@ -41,23 +41,18 @@ class AudioEncoder(muxer: MMuxer) : BaseEncoder(muxer) {
     }
 
     private fun configEncoderWithCQ(codec: MediaCodec, outputFormat: MediaFormat) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // 本部分手机不支持 BITRATE_MODE_CQ 模式，有可能会异常
-            outputFormat.setInteger(
-                MediaFormat.KEY_BITRATE_MODE,
-                MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ
-            )
-        }
+        outputFormat.setInteger(
+            MediaFormat.KEY_BITRATE_MODE,
+            MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ
+        )
         codec.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
 
     private fun configEncoderWithVBR(codec: MediaCodec, outputFormat: MediaFormat) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            outputFormat.setInteger(
-                MediaFormat.KEY_BITRATE_MODE,
-                MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR
-            )
-        }
+        outputFormat.setInteger(
+            MediaFormat.KEY_BITRATE_MODE,
+            MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR
+        )
         codec.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
 

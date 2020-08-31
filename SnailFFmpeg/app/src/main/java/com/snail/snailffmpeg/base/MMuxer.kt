@@ -20,9 +20,7 @@ import java.nio.ByteBuffer
  */
 class MMuxer(fileName: String) {
 
-    private val TAG = "MMuxer"
-
-    private var mPath: String
+    private val TAG = MMuxer::class.java.simpleName
 
     private var mMediaMuxer: MediaMuxer? = null
 
@@ -40,10 +38,9 @@ class MMuxer(fileName: String) {
     private var mStateListener: IMuxerStateListener? = null
 
     init {
-        val fileName = "SnailTest.mp4"
-        val filePath = Environment.getExternalStorageDirectory().absolutePath.toString() + "/"
-        mPath = filePath + fileName
-        mMediaMuxer = MediaMuxer(mPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        val filePath =
+            Environment.getExternalStorageDirectory().absolutePath.toString() + "/" + fileName
+        mMediaMuxer = MediaMuxer(filePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
     }
 
     fun addVideoTrack(mediaFormat: MediaFormat) {
@@ -55,8 +52,7 @@ class MMuxer(fileName: String) {
                 e.printStackTrace()
                 return
             }
-
-            Log.i(TAG, "添加视频轨道")
+            Log.i(TAG, "添加视频通道")
             mIsVideoTrackAdd = true
             startMuxer()
         }
@@ -71,24 +67,10 @@ class MMuxer(fileName: String) {
                 e.printStackTrace()
                 return
             }
-            Log.i(TAG, "添加音频轨道")
+            Log.i(TAG, "添加音频通道")
             mIsAudioTrackAdd = true
             startMuxer()
         }
-    }
-
-    fun setNoAudio() {
-        if (mIsAudioTrackAdd) return
-        mIsAudioTrackAdd = true
-        mIsAudioEnd = true
-        startMuxer()
-    }
-
-    fun setNoVideo() {
-        if (mIsVideoTrackAdd) return
-        mIsVideoTrackAdd = true
-        mIsVideoEnd = true
-        startMuxer()
     }
 
     fun writeVideoData(byteBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
