@@ -12,7 +12,7 @@ import com.snail.snailffmpeg.decoder.AudioDecoder
 import com.snail.snailffmpeg.decoder.DeCodeStateListener
 import com.snail.snailffmpeg.decoder.Frame
 import com.snail.snailffmpeg.decoder.VideoDecoder
-import java.io.File
+import kotlinx.android.synthetic.main.activity_encoder.*
 import java.util.concurrent.Executors
 
 
@@ -20,6 +20,7 @@ import java.util.concurrent.Executors
  * 视频硬编码
  */
 class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
+
     val TAG = EncoderActivity::class.java.simpleName
 
     companion object {
@@ -43,7 +44,7 @@ class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
 
     override fun initView() {
         Log.d(TAG, path)
-        muxer = MMuxer("new_test.mp4")
+        muxer = MMuxer("new_test.mp3")
         muxer.setStateListener(this)
         initAudioDecoder()
         initVideoDecoder(path, null)
@@ -57,8 +58,8 @@ class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
     private fun initVideoEncoder() {
         videoEncoder = VideoEncoder(muxer, 1920, 1080)
         videoEncoder?.setStateListener(object : DeEncoderStateListener {
-            override fun encodeFinish(encoder: BaseEncoder) {
-                super.encodeFinish(encoder)
+            override fun encoderStart(encoder: BaseEncoder) {
+
             }
         })
         threadPool.execute(videoEncoder)
@@ -69,7 +70,7 @@ class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
      */
     private fun initVideoDecoder(path: String, sf: Surface?) {
         videoDecoder?.stop()
-        videoDecoder = VideoDecoder(path, null, null).withoutSync()
+        videoDecoder = VideoDecoder(path, sfv, null).withoutSync()
         videoDecoder!!.setStateListener(object : DeCodeStateListener {
             override fun decoderOneFrame(decode: BaseDecoder?, frame: Frame) {
                 Log.d(TAG, "encodeOneFrame Video")
@@ -84,7 +85,7 @@ class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
                 Log.d(TAG, "视频编码错误信息: " + msg)
             }
         })
-        videoDecoder?.resume()
+        videoDecoder?.goOn()
         threadPool.execute(videoDecoder)
     }
 
@@ -116,7 +117,7 @@ class EncoderActivity : BaseActivity(), MMuxer.IMuxerStateListener {
                 Log.d(TAG, "音频编码错误信息: " + msg)
             }
         })
-        audioDecoder?.resume()
+        audioDecoder?.goOn()
         threadPool.execute(audioDecoder)
     }
 

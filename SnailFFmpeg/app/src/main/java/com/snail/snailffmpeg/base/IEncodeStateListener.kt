@@ -1,9 +1,9 @@
 package com.snail.snailffmpeg.base
 
 interface IEncodeStateListener {
-    fun encodeStart(encoder: BaseEncoder)
+    fun encoderStart(encoder: BaseEncoder)
 
-    fun encodeProgress(encoder: BaseEncoder)
+    fun encoderProgress(encoder: BaseEncoder)
 
-    fun encodeFinish(encoder: BaseEncoder)
+    fun encoderFinish(encoder: BaseEncoder)
 }

@@ -4,12 +4,12 @@ import com.snail.snailffmpeg.base.BaseEncoder
 import com.snail.snailffmpeg.base.IEncodeStateListener
 
 interface DeEncoderStateListener : IEncodeStateListener {
-    override fun encodeStart(encoder: BaseEncoder) {
+    override fun encoderStart(encoder: BaseEncoder) {
     }
 
-    override fun encodeProgress(encoder: BaseEncoder) {
+    override fun encoderProgress(encoder: BaseEncoder) {
     }
 
-    override fun encodeFinish(encoder: BaseEncoder) {
+    override fun encoderFinish(encoder: BaseEncoder) {
     }
 }

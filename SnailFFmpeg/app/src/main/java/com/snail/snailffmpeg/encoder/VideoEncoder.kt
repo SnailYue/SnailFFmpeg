@@ -3,7 +3,9 @@ package com.snail.snailffmpeg.encoder
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
+import android.os.Build
 import android.util.Log
+import android.view.Surface
 import com.snail.snailffmpeg.base.BaseEncoder
 import com.snail.snailffmpeg.base.MMuxer
 import java.lang.Exception
@@ -17,16 +19,14 @@ import java.nio.ByteBuffer
  */
 class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, width, height) {
 
-    /**
-     * 设置视频编码格式
-     */
+    private val TAG = "VideoEncoder"
+
+    private var mSurface: Surface? = null
+
     override fun encodeType(): String {
         return "video/avc"
     }
 
-    /**
-     * 设置视频编码参数
-     */
     override fun configEncoder(codec: MediaCodec) {
         if (mWidth <= 0 || mHeight <= 0) {
             throw IllegalArgumentException("Encode width or height is invalid, width: $mWidth, height: $mHeight")
@@ -40,56 +40,54 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
             MediaFormat.KEY_COLOR_FORMAT,
             MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
         )
+
         try {
             configEncoderWithCQ(codec, outputFormat)
         } catch (e: Exception) {
             e.printStackTrace()
+            // 捕获异常，设置为系统默认配置 BITRATE_MODE_VBR
             try {
-                configEncodeWithVBR(codec, outputFormat)
+                configEncoderWithVBR(codec, outputFormat)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.e(TAG, "配置视频编码异常")
+                Log.e(TAG, "配置视频编码器失败")
             }
         }
+
+        mSurface = codec.createInputSurface()
     }
 
-    /**
-     * 设置码率 CQ
-     */
     private fun configEncoderWithCQ(codec: MediaCodec, outputFormat: MediaFormat) {
-        outputFormat.setInteger(
-            MediaFormat.KEY_BITRATE_MODE,
-            MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // 本部分手机不支持 BITRATE_MODE_CQ 模式，有可能会异常
+            outputFormat.setInteger(
+                MediaFormat.KEY_BITRATE_MODE,
+                MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ
+            )
+        }
         codec.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
 
-    /**
-     * 设置码率 VBR
-     */
-    private fun configEncodeWithVBR(codec: MediaCodec, outputFormat: MediaFormat) {
-        outputFormat.setInteger(
-            MediaFormat.KEY_BITRATE_MODE,
-            MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR
-        )
+    private fun configEncoderWithVBR(codec: MediaCodec, outputFormat: MediaFormat) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            outputFormat.setInteger(
+                MediaFormat.KEY_BITRATE_MODE,
+                MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR
+            )
+        }
         codec.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
 
-    /**
-     * 添加视频通道
-     */
     override fun addTrack(muxer: MMuxer, mediaFormat: MediaFormat) {
         muxer.addVideoTrack(mediaFormat)
     }
 
-    /**
-     * 写编码数据
-     */
     override fun writeData(
         muxer: MMuxer,
         byteBuffer: ByteBuffer,
         bufferInfo: MediaCodec.BufferInfo
     ) {
+        Log.d(TAG, "writeData Video")
         muxer.writeVideoData(byteBuffer, bufferInfo)
     }
 
@@ -97,12 +95,12 @@ class VideoEncoder(muxer: MMuxer, width: Int, height: Int) : BaseEncoder(muxer, 
         return false
     }
 
-
-    /**
-     * 释放
-     */
     override fun release(muxer: MMuxer) {
         muxer.releaseVideoTrack()
+    }
+
+    fun getEncodeSurface(): Surface? {
+        return mSurface
     }
 
 }

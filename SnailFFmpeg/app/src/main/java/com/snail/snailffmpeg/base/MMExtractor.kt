@@ -17,71 +17,53 @@ import java.nio.ByteBuffer
  */
 class MMExtractor(path: String?) {
 
-    /**
-     * 音视频分离器
-     */
+    /**音视频分离器*/
     private var mExtractor: MediaExtractor? = null
 
-    /**
-     * 音频通道索引
-     */
+    /**音频通道索引*/
     private var mAudioTrack = -1
 
-    /**
-     * 视频通道索引
-     */
+    /**视频通道索引*/
     private var mVideoTrack = -1
 
-    /**
-     * 当前帧采样时间
-     */
+    /**当前帧时间戳*/
     private var mCurSampleTime: Long = 0
 
-    /**
-     * 当前帧采样标志
-     */
-    private var mCurSampleFlags: Int = 0
+    /**当前帧标志*/
+    private var mCurSampleFlag: Int = 0
 
-    /**
-     * 开始解码时间点
-     */
+    /**开始解码时间点*/
     private var mStartPos: Long = 0
 
-    /**
-     * 初始化
-     */
     init {
         mExtractor = MediaExtractor()
         mExtractor?.setDataSource(path!!)
     }
 
-
     /**
-     * 获取视频格式轨道参数
+     * 获取视频格式参数
      */
     fun getVideoFormat(): MediaFormat? {
-        for (i in 0..mExtractor!!.trackCount) {
+        for (i in 0 until mExtractor!!.trackCount) {
             val mediaFormat = mExtractor!!.getTrackFormat(i)
-            var mime = mediaFormat.getString(MediaFormat.KEY_MIME)
+            val mime = mediaFormat.getString(MediaFormat.KEY_MIME)
             if (mime.startsWith("video/")) {
-                //视频通道索引
                 mVideoTrack = i
                 break
             }
         }
-        return if (mVideoTrack >= 0) {
+        return if (mVideoTrack >= 0)
             mExtractor!!.getTrackFormat(mVideoTrack)
-        } else null
+        else null
     }
 
     /**
-     * 获取音频格式通道参数
+     * 获取音频格式参数
      */
     fun getAudioFormat(): MediaFormat? {
-        for (i in 0..mExtractor!!.trackCount) {
-            var mediaFormat = mExtractor!!.getTrackFormat(i)
-            var mime = mediaFormat.getString(MediaFormat.KEY_MIME)
-            //音频轨道索引
+        for (i in 0 until mExtractor!!.trackCount) {
+            val mediaFormat = mExtractor!!.getTrackFormat(i)
+            val mime = mediaFormat.getString(MediaFormat.KEY_MIME)
             if (mime.startsWith("audio/")) {
                 mAudioTrack = i
                 break
@@ -102,11 +84,10 @@ class MMExtractor(path: String?) {
         if (readSampleCount < 0) {
             return -1
         }
+        //记录当前帧的时间戳
         mCurSampleTime = mExtractor!!.sampleTime
-        mCurSampleFlags = mExtractor!!.sampleFlags
-        /**
-         * 读取下一帧
-         */
+        mCurSampleFlag = mExtractor!!.sampleFlags
+        //进入下一帧
         mExtractor!!.advance()
         return readSampleCount
     }
@@ -114,7 +95,7 @@ class MMExtractor(path: String?) {
     /**
      * 选择通道
      */
-    fun selectSourceTrack() {
+    private fun selectSourceTrack() {
         if (mVideoTrack >= 0) {
             mExtractor!!.selectTrack(mVideoTrack)
         } else if (mAudioTrack >= 0) {
@@ -123,7 +104,7 @@ class MMExtractor(path: String?) {
     }
 
     /**
-     * seek到指定位置
+     * Seek到指定位置，并返回实际帧的时间戳
      */
     fun seek(pos: Long): Long {
         mExtractor!!.seekTo(pos, MediaExtractor.SEEK_TO_PREVIOUS_SYNC)
@@ -131,23 +112,17 @@ class MMExtractor(path: String?) {
     }
 
     /**
-     * 释放音视频分离器
+     * 停止读取数据
      */
     fun stop() {
-        mExtractor!!.release()
+        mExtractor?.release()
         mExtractor = null
     }
 
-    /**
-     * 获取视频通道索引
-     */
     fun getVideoTrack(): Int {
         return mVideoTrack
     }
 
-    /**
-     * 获取音频通道索引
-     */
     fun getAudioTrack(): Int {
         return mAudioTrack
     }
@@ -157,16 +132,13 @@ class MMExtractor(path: String?) {
     }
 
     /**
-     * 当前采样时间
+     * 获取当前帧时间
      */
     fun getCurrentTimeStamp(): Long {
         return mCurSampleTime
     }
 
-    /**
-     * 采样标志
-     */
     fun getSampleFlag(): Int {
-        return mCurSampleFlags
+        return mCurSampleFlag
     }
 }

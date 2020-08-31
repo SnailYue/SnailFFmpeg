@@ -4,6 +4,7 @@ import android.media.MediaCodec
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.os.Environment
+import android.util.Log
 import java.lang.IllegalArgumentException
 import java.nio.ByteBuffer
 
@@ -19,35 +20,19 @@ import java.nio.ByteBuffer
  */
 class MMuxer(fileName: String) {
 
-    private var mPath: String? = null
+    private val TAG = "MMuxer"
 
-    /**
-     * 媒体合成器
-     */
+    private var mPath: String
+
     private var mMediaMuxer: MediaMuxer? = null
 
-    /**
-     * 视频轨道索引
-     */
     private var mVideoTrackIndex = -1
-
-    /**
-     * 音频轨道索引
-     */
     private var mAudioTrackIndex = -1
 
-    /**
-     * 判断音频轨道是否添加
-     */
     private var mIsAudioTrackAdd = false
-
-    /**
-     * 判断视频轨道是否添加
-     */
     private var mIsVideoTrackAdd = false
 
     private var mIsAudioEnd = false
-
     private var mIsVideoEnd = false
 
     private var mIsStart = false
@@ -55,121 +40,111 @@ class MMuxer(fileName: String) {
     private var mStateListener: IMuxerStateListener? = null
 
     init {
-        if (fileName.isEmpty()) {
-            throw IllegalArgumentException("fileName can not empty")
-        }
+        val fileName = "SnailTest.mp4"
         val filePath = Environment.getExternalStorageDirectory().absolutePath.toString() + "/"
         mPath = filePath + fileName
-        /**
-         * 设置输出路径及格式
-         */
-        mMediaMuxer = MediaMuxer(mPath!!, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        mMediaMuxer = MediaMuxer(mPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
     }
 
-    /**
-     * 1.添加视频轨道
-     */
     fun addVideoTrack(mediaFormat: MediaFormat) {
         if (mIsVideoTrackAdd) return
         if (mMediaMuxer != null) {
-            mVideoTrackIndex = mMediaMuxer!!.addTrack(mediaFormat)
+            mVideoTrackIndex = try {
+                mMediaMuxer!!.addTrack(mediaFormat)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return
+            }
+
+            Log.i(TAG, "添加视频轨道")
             mIsVideoTrackAdd = true
             startMuxer()
         }
     }
 
-    /**
-     * 1.添加音频轨道
-     */
     fun addAudioTrack(mediaFormat: MediaFormat) {
         if (mIsAudioTrackAdd) return
         if (mMediaMuxer != null) {
-            mAudioTrackIndex = mMediaMuxer!!.addTrack(mediaFormat)
+            mAudioTrackIndex = try {
+                mMediaMuxer!!.addTrack(mediaFormat)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return
+            }
+            Log.i(TAG, "添加音频轨道")
             mIsAudioTrackAdd = true
             startMuxer()
         }
     }
 
+    fun setNoAudio() {
+        if (mIsAudioTrackAdd) return
+        mIsAudioTrackAdd = true
+        mIsAudioEnd = true
+        startMuxer()
+    }
 
-    /**
-     * 3.写视频数据
-     */
+    fun setNoVideo() {
+        if (mIsVideoTrackAdd) return
+        mIsVideoTrackAdd = true
+        mIsVideoEnd = true
+        startMuxer()
+    }
+
     fun writeVideoData(byteBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
         if (mIsStart) {
             mMediaMuxer?.writeSampleData(mVideoTrackIndex, byteBuffer, bufferInfo)
         }
     }
 
-    /**
-     * 3.写音频数据
-     */
     fun writeAudioData(byteBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
         if (mIsStart) {
             mMediaMuxer?.writeSampleData(mAudioTrackIndex, byteBuffer, bufferInfo)
         }
     }
 
-    /**
-     * 2.开始封装
-     */
     private fun startMuxer() {
         if (mIsAudioTrackAdd && mIsVideoTrackAdd) {
             mMediaMuxer?.start()
             mIsStart = true
             mStateListener?.onMuxerStart()
+            Log.i(TAG, "启动封装器")
         }
     }
 
-    /**
-     * 释放视频轨道相关
-     */
     fun releaseVideoTrack() {
         mIsVideoEnd = true
         release()
     }
 
-    /**
-     * 释放视频轨道相关
-     */
     fun releaseAudioTrack() {
         mIsAudioEnd = true
         release()
     }
 
-    /**
-     * 4.释放封装相关(先stop(),再release())
-     */
     private fun release() {
         if (mIsAudioEnd && mIsVideoEnd) {
-            mIsVideoTrackAdd = false
             mIsAudioTrackAdd = false
-            mMediaMuxer?.stop()
-            mMediaMuxer?.release()
-            mMediaMuxer = null
-            mStateListener?.onMuxerFinish()
+            mIsVideoTrackAdd = false
+            try {
+                mMediaMuxer?.stop()
+                mMediaMuxer?.release()
+                mMediaMuxer = null
+                Log.i(TAG, "退出封装器")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                mStateListener?.onMuxerFinish()
+            }
         }
     }
 
-    /**
-     * 设置监听事件
-     */
-    fun setStateListener(listener: IMuxerStateListener) {
-        mStateListener = listener
+    fun setStateListener(l: IMuxerStateListener) {
+        this.mStateListener = l
     }
 
-    /**
-     * 合成器状态监听接口
-     */
     interface IMuxerStateListener {
-        /**
-         * 开始封装
-         */
         fun onMuxerStart() {}
-
-        /**
-         * 封装完成
-         */
         fun onMuxerFinish() {}
     }
-
 }
