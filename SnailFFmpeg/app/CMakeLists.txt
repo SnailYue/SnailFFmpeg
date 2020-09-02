@@ -68,10 +68,16 @@ add_library(live
         ${CMAKE_SOURCE_DIR}/src/main/cpp/AudioStream.cpp
         ${CMAKE_SOURCE_DIR}/src/main/cpp/VideoStream.cpp)
 
+add_library(transform
+        SHARED
+        ${CMAKE_SOURCE_DIR}/src/main/cpp/TransformMedia.cpp
+        ${CMAKE_SOURCE_DIR}/src/main/cpp/Mp4ToAVI.cpp)
+
 find_library(log-lib log)
 
 target_link_libraries(
         live
+        transform
         x264
         faac
         rtmp

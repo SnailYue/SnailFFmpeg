@@ -18,7 +18,8 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".encoder.EncoderActivity"></activity>
+        <activity android:name=".ffmpeg.transform.TransformActivity"></activity>
+        <activity android:name=".encoder.EncoderActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

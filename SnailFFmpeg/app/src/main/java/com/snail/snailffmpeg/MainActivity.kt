@@ -5,6 +5,7 @@ import android.Manifest
 import com.snail.snailffmpeg.base.BaseActivity
 import com.snail.snailffmpeg.encoder.EncoderActivity
 import com.snail.snailffmpeg.extends.hide
+import com.snail.snailffmpeg.ffmpeg.transform.TransformActivity
 import com.snail.snailffmpeg.live.LiveActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import permissions.dispatcher.NeedsPermission
@@ -39,6 +40,9 @@ class MainActivity : BaseActivity() {
         }
         bt_mediacodec.setOnClickListener {
             EncoderActivity.start(this)
+        }
+        bt_transform.setOnClickListener {
+            TransformActivity.start(this)
         }
     }
 
