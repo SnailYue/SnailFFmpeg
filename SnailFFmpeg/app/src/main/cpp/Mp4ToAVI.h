@@ -5,11 +5,11 @@
 #ifndef SNAILFFMPEG_MP4TOAVI_H
 #define SNAILFFMPEG_MP4TOAVI_H
 
+#include <jni.h>
+
 extern "C" {
 
-#include "libavformat/avformat.h"
-
-}
+#include <libavformat/avformat.h>
 
 int transformMp4(const char *in_path, const char *out_path) {
     AVOutputFormat *ofmt = NULL;
@@ -21,7 +21,7 @@ int transformMp4(const char *in_path, const char *out_path) {
 
     AVPacket pkt;
 
-    int ret, i;
+    int ret;
     int frame_index = 0;
     /**
      * 初始化
@@ -146,6 +146,10 @@ int transformMp4(const char *in_path, const char *out_path) {
      * 写文件尾
      */
     av_write_trailer(ofmt_ctx);
+
+    /**
+     * end
+     */
     end:
     avformat_close_input(&ifmt_ctx);
     /**
@@ -155,7 +159,9 @@ int transformMp4(const char *in_path, const char *out_path) {
         avio_close(ofmt_ctx->pb);
     }
     avformat_free_context(ofmt_ctx);
-    return 0;
+    return ret;
+}
+
 }
 
 #endif //SNAILFFMPEG_MP4TOAVI_H

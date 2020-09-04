@@ -5,8 +5,8 @@
 #ifndef SNAILFFMPEG_VIDEOSTREAM_H
 #define SNAILFFMPEG_VIDEOSTREAM_H
 
-#include "include/rtmp/rtmp.h"
-#include "include/x264/x264.h"
+#include "rtmp/rtmp.h"
+#include "x264/x264.h"
 #include <pthread.h>
 #include <inttypes.h>
 #include "LogUtil.h"

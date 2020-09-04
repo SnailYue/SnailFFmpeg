@@ -1,2 +1,4 @@
+include ':ffmpeg'
+include ':live'
 include ':app'
 rootProject.name = "SnailFFmpeg"

@@ -6,8 +6,8 @@
 #define SNAILFFMPEG_AUDIOSTREAM_H
 
 #include <sys/types.h>
-#include "include/rtmp/rtmp.h"
-#include "include/faac/faac.h"
+#include "rtmp/rtmp.h"
+#include "faac/faac.h"
 #include "LogUtil.h"
 
 class AudioStream {

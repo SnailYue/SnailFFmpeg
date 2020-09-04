@@ -1,8 +1,20 @@
+
 cmake_minimum_required(VERSION 3.4.1)
 
-include_directories(${CMAKE_SOURCE_DIR}/src/main/cpp/include)
 
-include_directories(${CMAKE_SOURCE_DIR}/libs/armeabi-v7a)
+#add_library(live
+#        SHARED
+#        src/main/cpp/RtmpPusher.cpp
+#        src/main/cpp/AudioStream.cpp
+#        src/main/cpp/VideoStream.cpp)
+
+find_library(log-lib log)
+
+
+add_library(transform
+        SHARED
+        src/main/cpp/TransformMedia.cpp
+        src/main/cpp/Mp4ToAVI.h)
 
 add_library(faac
         STATIC
@@ -25,67 +37,67 @@ set_target_properties(x264
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libx264.a)
 
-add_library(avcodec SHARED IMPORTED)
-set_target_properties(avcodec
+add_library(avutil-55
+        SHARED
+        IMPORTED)
+set_target_properties(avutil-55
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavcodec.so)
+        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavutil-55.so)
 
-add_library(avdevice SHARED IMPORTED)
-set_target_properties(avdevice
+add_library(swresample-2
+        SHARED
+        IMPORTED)
+set_target_properties(swresample-2
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavdevice.so)
-
-add_library(avfilter SHARED IMPORTED)
-set_target_properties(avfilter
+        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libswresample-2.so)
+add_library(avcodec-57
+        SHARED
+        IMPORTED)
+set_target_properties(avcodec-57
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavfilter.so)
-
-add_library(avformat SHARED IMPORTED)
-set_target_properties(avformat
+        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavcodec-57.so)
+add_library(avfilter-6
+        SHARED
+        IMPORTED)
+set_target_properties(avfilter-6
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavformat.so)
-
-add_library(avutil SHARED IMPORTED)
-set_target_properties(avutil
+        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavfilter-6.so)
+add_library(swscale-4
+        SHARED
+        IMPORTED)
+set_target_properties(swscale-4
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavutil.so)
-
-add_library(swresample SHARED IMPORTED)
-set_target_properties(swresample
+        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libswscale-4.so)
+add_library(avdevice-57
+        SHARED
+        IMPORTED)
+set_target_properties(avdevice-57
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libswresample.so)
-
-add_library(swscale SHARED IMPORTED)
-set_target_properties(swscale
+        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavdevice-57.so)
+add_library(avformat-57
+        SHARED
+        IMPORTED)
+set_target_properties(avformat-57
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libswscale.so)
+        ${CMAKE_SOURCE_DIR}/libs/armeabi-v7a/libavformat-57.so)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 
-add_library(live
-        SHARED
-        ${CMAKE_SOURCE_DIR}/src/main/cpp/RtmpPusher.cpp
-        ${CMAKE_SOURCE_DIR}/src/main/cpp/AudioStream.cpp
-        ${CMAKE_SOURCE_DIR}/src/main/cpp/VideoStream.cpp)
 
-add_library(transform
-        SHARED
-        ${CMAKE_SOURCE_DIR}/src/main/cpp/TransformMedia.cpp
-        ${CMAKE_SOURCE_DIR}/src/main/cpp/Mp4ToAVI.cpp)
+include_directories(src/main/cpp/include)
 
-find_library(log-lib log)
 
 target_link_libraries(
-        live
+#        live
         transform
         x264
         faac
         rtmp
-        avcodec
-        avdevice
-        avfilter
-        avformat
-        avutil
-        swresample
-        swscale
+        avcodec-57
+        avdevice-57
+        avfilter-6
+        avformat-57
+        avutil-55
+        swresample-2
+        swscale-4
         ${log-lib})
