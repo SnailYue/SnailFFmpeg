@@ -18,8 +18,8 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ffmpeg.transform.TransformActivity"></activity>
         <activity android:name=".encoder.EncoderActivity" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,9 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".live.LiveActivity"
-            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>

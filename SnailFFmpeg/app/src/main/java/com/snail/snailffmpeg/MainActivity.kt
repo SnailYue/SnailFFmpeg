@@ -2,11 +2,10 @@ package com.snail.snailffmpeg
 
 
 import android.Manifest
+import com.snail.ffmpeg.FFmpegActivity
+import com.snail.live.LiveActivity
 import com.snail.snailffmpeg.base.BaseActivity
 import com.snail.snailffmpeg.encoder.EncoderActivity
-import com.snail.snailffmpeg.extends.hide
-import com.snail.snailffmpeg.ffmpeg.transform.TransformActivity
-import com.snail.snailffmpeg.live.LiveActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.RuntimePermissions
@@ -42,7 +41,7 @@ class MainActivity : BaseActivity() {
             EncoderActivity.start(this)
         }
         bt_transform.setOnClickListener {
-            TransformActivity.start(this)
+            FFmpegActivity.start(this)
         }
     }
 
