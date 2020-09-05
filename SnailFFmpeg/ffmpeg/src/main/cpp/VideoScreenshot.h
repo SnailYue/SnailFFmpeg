@@ -34,7 +34,7 @@ static int interrupt_cb(void *ctx) {
 
 
 /**
- * 打开输入
+ * 打开输入文件
  * @param inputUrl
  * @return
  */
