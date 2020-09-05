@@ -11,6 +11,12 @@ extern "C" {
 
 #include "include/libavformat/avformat.h"
 
+/**
+ *  mp4 转 avi
+ * @param in_path
+ * @param out_path
+ * @return
+ */
 int transformMp4(const char *in_path, const char *out_path) {
     AVOutputFormat *ofmt = NULL;
     AVBitStreamFilterContext *vbsf = NULL;

@@ -18,7 +18,13 @@ object MediaTransFormUtil {
         }
     }
 
+    fun screenshotFromStream(url: String, name: String) {
+        native_screenshot_from_stream(url, name)
+    }
+
     external fun native_init()
 
     external fun native_mp4_to_avi(inPath: String, outPath: String)
+
+    external fun native_screenshot_from_stream(url: String, outputName: String)
 }

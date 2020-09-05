@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Environment
 import com.snail.ffmpeg.base.BaseActivity
+import com.snail.ffmpeg.transform.MediaTransFormUtil
 import kotlinx.android.synthetic.main.activity_ffmpeg.*
 
 class FFmpegActivity : BaseActivity() {
@@ -23,12 +24,18 @@ class FFmpegActivity : BaseActivity() {
         var outPath =
             Environment.getExternalStorageDirectory().absolutePath + "/langzhongzhilian.avi"
         bt_transform?.setOnClickListener {
-            com.snail.ffmpeg.transform.MediaTransFormUtil.transformMedia(
+            MediaTransFormUtil.transformMedia(
                 com.snail.ffmpeg.constant.MediaForm.MP4TOAVI,
                 inPath,
                 outPath
             )
             bt_transform?.isClickable = false
+        }
+
+        var outputName =
+            Environment.getExternalStorageDirectory().absolutePath + "/screenshot.jpg"
+        bt_screen_shot.setOnClickListener {
+            MediaTransFormUtil.screenshotFromStream(inPath, outputName)
         }
     }
 }

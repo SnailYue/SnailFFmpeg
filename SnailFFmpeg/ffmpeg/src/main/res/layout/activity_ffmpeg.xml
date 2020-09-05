@@ -16,4 +16,16 @@
         android:text="开始转码"
         tools:ignore="MissingConstraints" />
 
+
+    <Button
+        android:layout_below="@id/bt_transform"
+        android:id="@+id/bt_screen_shot"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:text="截取图片"
+        tools:ignore="MissingConstraints" />
+
 </RelativeLayout>

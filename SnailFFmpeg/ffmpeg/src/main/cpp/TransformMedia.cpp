@@ -5,6 +5,7 @@
 
 #include <jni.h>
 
+#include "VideoScreenshot.h"
 
 extern "C" {
 
@@ -29,6 +30,20 @@ Java_com_snail_ffmpeg_transform_MediaTransFormUtil_native_1mp4_1to_1avi(JNIEnv *
     transformMp4(_in_path, _out_path);
     env->ReleaseStringUTFChars(in_path, _in_path);
     env->ReleaseStringUTFChars(out_path, _out_path);
+}
+
+
+void JNICALL
+Java_com_snail_ffmpeg_transform_MediaTransFormUtil_native_1screenshot_1from_1stream(JNIEnv *env,
+                                                                                    jobject thiz,
+                                                                                    jstring url,
+                                                                                    jstring output_name) {
+    printf("native_1screenshot_1from_1stream");
+    const char *_url = env->GetStringUTFChars(url, 0);
+    const char *_output_name = env->GetStringUTFChars(output_name, 0);
+    screenShot(_url, _output_name);
+    env->ReleaseStringUTFChars(url, _url);
+    env->ReleaseStringUTFChars(output_name, _output_name);
 }
 
 }
