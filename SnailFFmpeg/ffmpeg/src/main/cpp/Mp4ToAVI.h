@@ -34,7 +34,7 @@ int transformMp4(const char *in_path, const char *out_path) {
      */
     av_register_all();
     /**
-     * 打开输入文件
+     * 打开输入文件并解析
      */
     if ((ret = avformat_open_input(&ifmt_ctx, in_path, 0, 0)) < 0) {
         printf("Could not to open input file!!");
@@ -48,7 +48,7 @@ int transformMp4(const char *in_path, const char *out_path) {
         goto end;
     }
     /**
-     * 初始化mp4的封装模式
+     * 初始化bitstreamfilter     bitstreamfilter用于转码
      */
     vbsf = av_bitstream_filter_init("h264_mp4toannexb");
     av_dump_format(ifmt_ctx, 0, in_path, 0);
@@ -66,6 +66,9 @@ int transformMp4(const char *in_path, const char *out_path) {
      */
     for (int i = 0; i < ifmt_ctx->nb_streams; ++i) {
         AVStream *in_stream = ifmt_ctx->streams[i];
+        /**
+         * 在AVFormatContext中创建Stream通道
+         */
         AVStream *out_stream = avformat_new_stream(ofmt_ctx, in_stream->codec->codec);
         if (!out_stream) {
             printf("Failed allocating output stream");
@@ -76,7 +79,7 @@ int transformMp4(const char *in_path, const char *out_path) {
          * 复制AVCodecContext的设置属性
          */
         if (avcodec_copy_context(out_stream->codec, in_stream->codec) < 0) {
-            printf("Failed to copu context from input to output stream codec context");
+            printf("Failed to copy context from input to output stream codec context");
             goto end;
         }
         out_stream->codec->codec_tag = 0;
@@ -95,7 +98,7 @@ int transformMp4(const char *in_path, const char *out_path) {
         /**
          * 打开输出文件
          */
-        ret = avio_open(&ofmt_ctx->pb, out_path, AVIO_FLAG_WRITE);
+        ret = avio_open2(&ofmt_ctx->pb, out_path, AVIO_FLAG_WRITE, nullptr,nullptr);
         if (ret < 0) {
             printf("Could not open output file");
             goto end;
@@ -145,6 +148,7 @@ int transformMp4(const char *in_path, const char *out_path) {
             break;
         }
         printf("Write %8d frame to output file", frame_index);
+        av_free(&pkt.data);
         av_packet_unref(&pkt);
         frame_index++;
     }

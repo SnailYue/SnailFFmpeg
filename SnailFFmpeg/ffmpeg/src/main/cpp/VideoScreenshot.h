@@ -42,6 +42,7 @@ int openInput(string inputUrl) {
     inputContext = avformat_alloc_context();
     lastReadPacketTime = av_gettime();
     inputContext->interrupt_callback.callback = interrupt_cb;
+
     int ret = avformat_open_input(&inputContext, inputUrl.c_str(), nullptr, nullptr);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Input file open input failed");
@@ -153,7 +154,7 @@ void closeOutput() {
 }
 
 /**
- * 写帧数据
+ * 写Packet数据
  * @param packet
  * @return
  */
@@ -170,10 +171,16 @@ int writePacket(shared_ptr<AVPacket> packet) {
  */
 int initDecodeContext(AVStream *inputStream) {
     auto codecId = inputStream->codec->codec_id;
+    /**
+     * 根据ID获取解码器
+     */
     auto codec = avcodec_find_decoder(codecId);
     if (!codec) {
         return -1;
     }
+    /**
+     * 打开解码器
+     */
     int ret = avcodec_open2(inputStream->codec, codec, NULL);
     return ret;
 }
@@ -186,7 +193,13 @@ int initDecodeContext(AVStream *inputStream) {
  */
 int initEncoderCodec(AVStream *inputStream, AVCodecContext **encodeContext) {
     AVCodec *picCodec;
+    /**
+     * 获取编码器
+     */
     picCodec = avcodec_find_encoder(AV_CODEC_ID_MJPEG);
+    /**
+     * 申请AVCodecContext的内存空间
+     */
     (*encodeContext) = avcodec_alloc_context3(picCodec);
 
     (*encodeContext)->codec_id = picCodec->id;
@@ -195,7 +208,9 @@ int initEncoderCodec(AVStream *inputStream, AVCodecContext **encodeContext) {
     (*encodeContext)->pix_fmt = *picCodec->pix_fmts;
     (*encodeContext)->height = inputStream->codec->height;
     (*encodeContext)->width = inputStream->codec->width;
-
+    /**
+     * 打开编码器
+     */
     int ret = avcodec_open2((*encodeContext), picCodec, nullptr);
     if (ret < 0) {
         cout << "open video codec failed" << endl;
@@ -213,6 +228,9 @@ int initEncoderCodec(AVStream *inputStream, AVCodecContext **encodeContext) {
  */
 bool decode(AVStream *inputStream, AVPacket *packet, AVFrame *frame) {
     int gotFrame = 0;
+    /**
+     * 视频解码
+     */
     auto hr = avcodec_decode_video2(inputStream->codec, frame, &gotFrame, packet);
     if (hr >= 0 && gotFrame != 0) {
         return true;
@@ -236,6 +254,9 @@ shared_ptr<AVPacket> encode(AVCodecContext *encodeContext, AVFrame *frame) {
     av_init_packet(pkt.get());
     pkt->data = NULL;
     pkt->size = 0;
+    /**
+     * 视频编码
+     */
     int ret = avcodec_encode_video2(encodeContext, pkt.get(), frame, &gotOutput);
     if (ret >= 0 && gotOutput) {
         return pkt;
