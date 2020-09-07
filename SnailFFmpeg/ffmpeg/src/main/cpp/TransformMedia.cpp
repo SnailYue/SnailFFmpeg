@@ -6,6 +6,7 @@
 #include <jni.h>
 
 #include "VideoScreenshot.h"
+#include "AddLogo.h"
 
 extern "C" {
 
@@ -44,6 +45,22 @@ Java_com_snail_ffmpeg_transform_MediaTransFormUtil_native_1screenshot_1from_1str
     screenShot(_url, _output_name);
     env->ReleaseStringUTFChars(url, _url);
     env->ReleaseStringUTFChars(output_name, _output_name);
+}
+
+
+void JNICALL
+Java_com_snail_ffmpeg_transform_MediaTransFormUtil_native_1add_1logo(JNIEnv *env, jobject thiz,
+                                                                     jstring video_url,
+                                                                     jstring picture_url,
+                                                                     jstring output_name) {
+    const char *_video_url = env->GetStringUTFChars(video_url, 0);
+    const char *_picture_url = env->GetStringUTFChars(picture_url, 0);
+    const char *_output_name = env->GetStringUTFChars(output_name, 0);
+    add_logo(_video_url, _picture_url, _output_name);
+    env->ReleaseStringUTFChars(video_url, _video_url);
+    env->ReleaseStringUTFChars(picture_url, _picture_url);
+    env->ReleaseStringUTFChars(output_name, _output_name);
+
 }
 
 }

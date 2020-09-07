@@ -32,10 +32,19 @@ class FFmpegActivity : BaseActivity() {
             bt_transform?.isClickable = false
         }
 
-        var outputName =
-            Environment.getExternalStorageDirectory().absolutePath + "/screenshot.jpg"
-        bt_screen_shot.setOnClickListener {
-            MediaTransFormUtil.screenshotFromStream(inPath, outputName)
+        bt_screen_shot?.setOnClickListener {
+            MediaTransFormUtil.screenshotFromStream(
+                inPath,
+                Environment.getExternalStorageDirectory().absolutePath + "/screenshot.jpg"
+            )
+        }
+
+        bt_add_logo?.setOnClickListener {
+            MediaTransFormUtil.addPictureLogo(
+                inPath,
+                Environment.getExternalStorageDirectory().absolutePath + "/youbo.png",
+                Environment.getExternalStorageDirectory().absolutePath + "/addLogoVideo.mp4"
+            )
         }
     }
 }

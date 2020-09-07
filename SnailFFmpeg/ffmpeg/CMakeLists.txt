@@ -10,7 +10,7 @@ add_library(transform
         src/main/cpp/TransformMedia.cpp
         src/main/cpp/Mp4ToAVI.h
         src/main/cpp/VideoScreenshot.h
-        src/main/cpp/AddLogo.cpp
+        src/main/cpp/AddLogo.h
         )
 
 add_library(avutil-55
