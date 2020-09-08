@@ -11,6 +11,7 @@ add_library(transform
         src/main/cpp/Mp4ToAVI.h
         src/main/cpp/VideoScreenshot.h
         src/main/cpp/AddLogo.h
+        src/main/cpp/AudioDecode.cpp
         )
 
 add_library(avutil-55
