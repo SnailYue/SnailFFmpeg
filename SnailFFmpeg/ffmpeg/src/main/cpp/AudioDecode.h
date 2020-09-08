@@ -23,6 +23,7 @@ size_t outputBufferSize;
 AVPacket packet;
 int audioStream;
 AVFrame *aFrame;
+//重采样结构体
 SwrContext *swrContext;
 AVFormatContext *avFormatContext;
 AVCodecContext *avCodecContext;
@@ -78,14 +79,17 @@ int init_ffmpeg(int *rate, int *channel, char *url) {
 
     //格式转换
     aFrame = av_frame_alloc();
+    //申请一个重采样结构体
     swrContext = swr_alloc();
 
+    //设置重采样的相关的参数
     av_opt_set_int(swrContext, "in_channel_layout", avCodecContext->channel_layout, 0);
     av_opt_set_int(swrContext, "out_channel_layout", avCodecContext->channel_layout, 0);
     av_opt_set_int(swrContext, "in_sample_rate", avCodecContext->sample_rate, 0);
     av_opt_set_int(swrContext, "out_sample_rate", avCodecContext->sample_rate, 0);
     av_opt_set_sample_fmt(swrContext, "in_sample_fmt", avCodecContext->sample_fmt, 0);
     av_opt_set_sample_fmt(swrContext, "out_sample_fmt", avCodecContext->sample_fmt, 0);
+    //初始化重采样结构体
     swr_init(swrContext);
 
     outputBufferSize = 8196;
@@ -120,7 +124,7 @@ int get_pcm(void **pcm, size_t *pcmsize) {
                     outputBuffer = (uint8_t *) realloc(outputBuffer,
                                                        sizeof(uint8_t) * outputBufferSize);
                 }
-                //音频格式转换
+                //将输入的音频按照定义的参数进行转换
                 swr_convert(swrContext, &outputBuffer, aFrame->nb_samples,
                             (uint8_t const **) (aFrame->extended_data), aFrame->nb_samples);
                 //返回PCM数据
@@ -142,6 +146,8 @@ int release_ffmpeg() {
     av_packet_unref(&packet);
     av_free(outputBuffer);
     av_free(aFrame);
+    //释放重采样结构体
+    swr_free(&swrContext);
     avcodec_close(avCodecContext);
     avformat_close_input(&avFormatContext);
     return 0;
