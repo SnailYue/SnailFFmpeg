@@ -8,10 +8,11 @@ find_library(log-lib log)
 add_library(transform
         SHARED
         src/main/cpp/TransformMedia.cpp
-        src/main/cpp/Mp4ToAVI.h
-        src/main/cpp/VideoScreenshot.h
-        src/main/cpp/AddLogo.h
+        src/main/cpp/Mp4ToAVI.cpp
+        src/main/cpp/VideoScreenshot.cpp
+        src/main/cpp/AddLogo.cpp
         src/main/cpp/AudioDecode.cpp
+        src/main/cpp/VideoDecode.cpp
         )
 
 add_library(avutil-55
