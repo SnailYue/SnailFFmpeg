@@ -14,8 +14,10 @@ extern "C" {
 }
 
 class Mp4ToAVI {
+
 public:
-    static int transformMp4(const char *in_path, const char *out_path);
+    int transformMp4(const char *in_path, const char *out_path);
+
 };
 
 #endif //SNAILFFMPEG_MP4TOAVI_H

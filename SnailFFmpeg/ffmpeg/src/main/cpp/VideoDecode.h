@@ -20,21 +20,19 @@ class VideoDecode {
 
 public:
 
-    static AVFormatContext *avFormatContext;
-    static int videoStream;
-    static AVCodecContext *avCodecContext;
-    static AVCodec *avCodec;
-    static AVFrame *avFrame;
-    static AVFrame *avFrameRGBA;
-    static uint8_t *buffer;
+    AVFormatContext *avFormatContext;
+    int videoStream;
+    AVCodecContext *avCodecContext;
+    AVCodec *avCodec;
+    AVFrame *avFrame;
+    AVFrame *avFrameRGBA;
+    uint8_t *buffer;
 
-    static int init_ffmpeg(const char *url);
 
-    static int find_decoder();
-
-    static int release();
-
-    static int play_video(const char *url);
+    int init_ffmpeg(const char *url);
+    int find_decoder();
+    int release();
+    int play_video(const char *url);
 };
 
 #endif //SNAILFFMPEG_VIDEODECODE_H

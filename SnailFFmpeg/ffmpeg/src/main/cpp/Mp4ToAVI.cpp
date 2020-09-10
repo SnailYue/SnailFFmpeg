@@ -142,7 +142,6 @@ int Mp4ToAVI::transformMp4(const char *in_path, const char *out_path) {
             break;
         }
         printf("Write %8d frame to output file", frame_index);
-        av_free(&pkt.data);
         av_packet_unref(&pkt);
         frame_index++;
     }
