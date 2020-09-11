@@ -3,6 +3,15 @@
 //
 
 
+/**
+ * 1.swr_alloc 创建重采样上下文SwrContext
+ * 2.av_opt_set_xxx() 设置转换的参数
+ * 3.swr_init() 初始化SwrContext
+ * 4.分配样本数据内存空间 av_samples_alloc_array_and_samples、av_samples_alloc等工具函数
+ * 5.swr_convert() 重采样转换
+ * 6.swr_free() 释放重采样上下文SwrContext
+ */
+
 #include "AudioDecode.h"
 
 /**
@@ -56,17 +65,17 @@ int AudioDecode::init_ffmpeg(int *rate, int *channel, char *url) {
 
     //格式转换
     aFrame = av_frame_alloc();
-    //申请一个重采样结构体
+    //1.申请一个重采样结构体
     swrContext = swr_alloc();
 
-    //设置重采样的相关的参数
+    //2.设置重采样的相关的参数
     av_opt_set_int(swrContext, "in_channel_layout", avCodecContext->channel_layout, 0);
     av_opt_set_int(swrContext, "out_channel_layout", avCodecContext->channel_layout, 0);
     av_opt_set_int(swrContext, "in_sample_rate", avCodecContext->sample_rate, 0);
     av_opt_set_int(swrContext, "out_sample_rate", avCodecContext->sample_rate, 0);
     av_opt_set_sample_fmt(swrContext, "in_sample_fmt", avCodecContext->sample_fmt, 0);
     av_opt_set_sample_fmt(swrContext, "out_sample_fmt", avCodecContext->sample_fmt, 0);
-    //初始化重采样结构体
+    //3.初始化重采样结构体
     swr_init(swrContext);
 
     outputBufferSize = 8196;
@@ -93,6 +102,7 @@ int AudioDecode::get_pcm(void **pcm, size_t *pcmsize) {
         if (packet.stream_index == audioStream) {
             avcodec_decode_audio4(avCodecContext, aFrame, &frameFinished, &packet);
             if (frameFinished) {
+                //4.获取数据的大小
                 int dataSize = av_samples_get_buffer_size(aFrame->linesize,
                                                           avCodecContext->channels,
                                                           aFrame->nb_samples,
@@ -101,7 +111,7 @@ int AudioDecode::get_pcm(void **pcm, size_t *pcmsize) {
                     outputBuffer = (uint8_t *) realloc(outputBuffer,
                                                        sizeof(uint8_t) * outputBufferSize);
                 }
-                //将输入的音频按照定义的参数进行转换
+                //5.将输入的音频按照定义的参数进行转换
                 swr_convert(swrContext, &outputBuffer, aFrame->nb_samples,
                             (uint8_t const **) (aFrame->extended_data), aFrame->nb_samples);
                 //返回PCM数据
@@ -123,7 +133,7 @@ int AudioDecode::release_ffmpeg() {
     av_packet_unref(&packet);
     av_free(outputBuffer);
     av_free(aFrame);
-    //释放重采样结构体
+    //6.释放重采样结构体
     swr_free(&swrContext);
     avcodec_close(avCodecContext);
     avformat_close_input(&avFormatContext);

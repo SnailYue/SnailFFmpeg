@@ -2,6 +2,22 @@
 // Created by surface on 2020/9/9.
 //
 
+
+
+/**
+ * swsContext的使用
+ * 1.sws_getCOntext()上下文结构体初始化
+ * 2.sws_scale()转换一帧图像
+ * 3.sws_freeContext()释放上下文结构体
+ *
+ * 常用函数
+ * sws_alloc_context() 为SwsContext结构体分配内存
+ * av_opt_set_xxx()  设置上下文结构体中参数的值
+ * sws_init_context() 初始化SwsContext结构体
+ *
+ */
+
+
 #include "VideoDecode.h"
 
 /**
@@ -91,7 +107,9 @@ int VideoDecode::play_video(const char *url) {
     av_image_fill_arrays(avFrameRGBA->data, avFrameRGBA->linesize,
                          buffer, AV_PIX_FMT_RGBA, avCodecContext->width, avCodecContext->height,
                          1);
-
+    /**
+     * 初始化swsContext结构体
+     */
     struct SwsContext *swsContext = sws_getContext(avCodecContext->width, avCodecContext->height,
                                                    avCodecContext->pix_fmt, avCodecContext->width,
                                                    avCodecContext->height, AV_PIX_FMT_RGBA,
@@ -101,11 +119,18 @@ int VideoDecode::play_video(const char *url) {
     while (av_read_frame(avFormatContext, &packet) >= 0) {
         if (packet.stream_index == videoStream) {
             avcodec_decode_video2(avCodecContext, avFrame, &frameFinished, &packet);
+            /**
+             * 转换一帧图像
+             */
             sws_scale(swsContext, (uint8_t const *const *) avFrame->data, avFrame->linesize, 0,
                       avCodecContext->height, avFrameRGBA->data, avFrameRGBA->linesize);
         }
         av_packet_unref(&packet);
     }
     release();
+    /**
+     * 释放swsContext结构体
+     */
+    sws_freeContext(swsContext);
     return 0;
 }
