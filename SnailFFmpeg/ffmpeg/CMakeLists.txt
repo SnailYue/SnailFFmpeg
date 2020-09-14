@@ -13,6 +13,7 @@ add_library(transform
         src/main/cpp/AddLogo.cpp
         src/main/cpp/AudioDecode.cpp
         src/main/cpp/VideoDecode.cpp
+        src/main/cpp/MediaEncoder.cpp
         )
 
 add_library(avutil-55
