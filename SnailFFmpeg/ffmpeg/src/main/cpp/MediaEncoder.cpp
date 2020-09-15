@@ -31,12 +31,15 @@ int MediaEncoder::init(int width, int height) {
     av_log_set_callback(custom_log);
 
     av_register_all();
+    //初始化输出AVFormartContext
     avformat_alloc_output_context2(&ofmtContext, NULL, "flv", outPath);
+    //查找编码器
     avCodec = avcodec_find_encoder(AV_CODEC_ID_H264);
     if (!avCodec) {
         LOGE("Can not find encoder");
         return -1;
     }
+    //初始化编码器上下文
     codecContext = avcodec_alloc_context3(avCodec);
     if (!codecContext) {
         LOGE("Could bot allocate video codec context");
@@ -59,12 +62,12 @@ int MediaEncoder::init(int width, int height) {
     AVDictionary *param = 0;
     av_dict_set(&param, "preset", "ultrafasr", 0);
     av_dict_set(&param, "tune", "zerolatency", 0);
-
+    //初始化编解码器
     if (avcodec_open2(codecContext, avCodec, &param) < 0) {
         LOGE("Failed to open encoder!");
         return -1;
     }
-
+    //新建流通道并设置相关的参数
     videoStream = avformat_new_stream(ofmtContext, avCodec);
     if (videoStream == NULL) {
         return -1;
@@ -72,10 +75,12 @@ int MediaEncoder::init(int width, int height) {
     videoStream->time_base.num = 1;
     videoStream->time_base.den = 30;
     videoStream->codec = codecContext;
+    //打开输入输出文件
     if (avio_open(&ofmtContext->pb, outPath, AVIO_FLAG_READ_WRITE) < 0) {
         LOGE("Failed to open output file");
         return -1;
     }
+    //写头信息
     avformat_write_header(ofmtContext, NULL);
     startTime = av_gettime();
     return 0;
@@ -92,7 +97,7 @@ int MediaEncoder::encode(int8_t *data) {
     int ret;
     int encodeGotFrame = 0;
     avFrame = av_frame_alloc();
-
+    //申请内存空间
     uint8_t *outBuffer = (uint8_t *) av_malloc(
             avpicture_get_size(AV_PIX_FMT_YUV420P, codecContext->width, codecContext->height));
     avpicture_fill((AVPicture *) avFrame, outBuffer, AV_PIX_FMT_YUV420P, codecContext->width,
@@ -110,9 +115,10 @@ int MediaEncoder::encode(int8_t *data) {
     avPacket.size = 0;
 
     av_init_packet(&avPacket);
+    //编码
     ret = avcodec_encode_video2(codecContext, &avPacket, avFrame, &encodeGotFrame);
     av_frame_free(&avFrame);
-
+    //如果是第一帧，添加pts，dts等相关信息
     if (encodeGotFrame == 1) {
         LOGI("SUcceed to encode frame");
         frameCount++;
@@ -132,6 +138,7 @@ int MediaEncoder::encode(int8_t *data) {
         if (ptsTime > nowTime) {
             av_usleep(ptsTime - nowTime);
         }
+        //写帧数据
         ret = av_interleaved_write_frame(ofmtContext, &avPacket);
         av_free_packet(&avPacket);
     }
