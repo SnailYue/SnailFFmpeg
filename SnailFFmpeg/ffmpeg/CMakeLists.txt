@@ -14,6 +14,7 @@ add_library(transform
         src/main/cpp/AudioDecode.cpp
         src/main/cpp/VideoDecode.cpp
         src/main/cpp/MediaEncoder.cpp
+        src/main/cpp/MediaDecoder.cpp
         )
 
 add_library(avutil-55

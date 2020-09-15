@@ -94,7 +94,6 @@ int MediaEncoder::init(int width, int height) {
  */
 int MediaEncoder::encode(int8_t *data) {
     LOGI("encode");
-    int ret;
     int encodeGotFrame = 0;
     avFrame = av_frame_alloc();
     //申请内存空间
@@ -116,7 +115,7 @@ int MediaEncoder::encode(int8_t *data) {
 
     av_init_packet(&avPacket);
     //编码
-    ret = avcodec_encode_video2(codecContext, &avPacket, avFrame, &encodeGotFrame);
+    int ret = avcodec_encode_video2(codecContext, &avPacket, avFrame, &encodeGotFrame);
     av_frame_free(&avFrame);
     //如果是第一帧，添加pts，dts等相关信息
     if (encodeGotFrame == 1) {
