@@ -15,6 +15,7 @@ add_library(transform
         src/main/cpp/VideoDecode.cpp
         src/main/cpp/MediaEncoder.cpp
         src/main/cpp/MediaDecoder.cpp
+        src/main/cpp/MediaPlayer.cpp
         )
 
 add_library(avutil-55
@@ -69,6 +70,7 @@ include_directories(src/main/cpp/include)
 
 target_link_libraries(
         transform
+        android
         avcodec-57
         avdevice-57
         avfilter-6

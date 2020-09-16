@@ -26,6 +26,10 @@ object MediaTransFormUtil {
         native_add_logo(video, picture, output);
     }
 
+    fun startPlayer(videoUrl: String, surfaceView: Any) {
+        native_start_player(videoUrl, surfaceView)
+    }
+
     external fun native_init()
 
     external fun native_mp4_to_avi(inPath: String, outPath: String)
@@ -33,4 +37,6 @@ object MediaTransFormUtil {
     external fun native_screenshot_from_stream(url: String, outputName: String)
 
     external fun native_add_logo(videoUrl: String, pictureUrl: String, outputName: String)
+
+    external fun native_start_player(videoUrl: String, surface: Any)
 }

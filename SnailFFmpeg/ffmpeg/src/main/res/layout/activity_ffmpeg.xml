@@ -40,5 +40,16 @@
         android:text="添加水印"
         tools:ignore="MissingConstraints" />
 
+    <Button
+        android:id="@+id/bt_player"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/bt_add_logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:text="播放"
+        tools:ignore="MissingConstraints" />
+
 
 </RelativeLayout>

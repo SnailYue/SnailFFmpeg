@@ -46,5 +46,9 @@ class FFmpegActivity : BaseActivity() {
                 Environment.getExternalStorageDirectory().absolutePath + "/addLogoVideo.mp4"
             )
         }
+
+        bt_player?.setOnClickListener {
+            PlayerActivity.start(this)
+        }
     }
 }
