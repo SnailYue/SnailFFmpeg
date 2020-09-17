@@ -40,11 +40,12 @@ int MediaPlayer::init(JNIEnv *env, string filePath, jobject surface) {
         LOGE("Could not open codec");
         return -1;
     }
-
+    //1.ANativeWindow_fromSurface()   获取native层的window
     nativeWindow = ANativeWindow_fromSurface(env, surface);
 
     videoWidth = pCodecContext->width;
     videoHeight = pCodecContext->height;
+    //2.ANativeWindow_setBufferGeometry()  设置native层 window的buffer的大小
     ANativeWindow_setBuffersGeometry(nativeWindow, videoWidth, videoHeight,
                                      WINDOW_FORMAT_RGBA_8888);
     pFrame = av_frame_alloc();
@@ -72,6 +73,7 @@ int MediaPlayer::play() {
         if (packet.stream_index == videoStream) {
             avcodec_decode_video2(pCodecContext, pFrame, &frameFinished, &packet);
             if (frameFinished) {
+                //3.ANativeWindow_lock()  给native window加锁
                 ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
                 sws_scale(swsContext, (uint8_t const *const *) pFrame->data, pFrame->linesize, 0,
                           pCodecContext->height, pFrameRGBA->data, pFrameRGBA->linesize);
@@ -82,6 +84,7 @@ int MediaPlayer::play() {
                 for (int i = 0; i < videoHeight; ++i) {
                     memcpy(dst + i * dstStride, src + i * srcStride, srcStride);
                 }
+                //4.ANativeWindow_unlockAndPost()  给native window解锁，并将新的缓冲区发送给显示
                 ANativeWindow_unlockAndPost(nativeWindow);
             }
         }

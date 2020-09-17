@@ -9,6 +9,10 @@
             android:name=".PlayerActivity"
             android:screenOrientation="landscape" />
 
+        <activity
+            android:name=".FilterActivity"
+            android:screenOrientation="landscape" />
+
     </application>
 
 </manifest>

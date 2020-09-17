@@ -50,5 +50,9 @@ class FFmpegActivity : BaseActivity() {
         bt_player?.setOnClickListener {
             PlayerActivity.start(this)
         }
+
+        bt_filter?.setOnClickListener {
+            FilterActivity.start(this)
+        }
     }
 }

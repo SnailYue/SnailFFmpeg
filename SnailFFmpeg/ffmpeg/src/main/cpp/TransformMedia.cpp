@@ -9,6 +9,7 @@
 #include "AddLogo.h"
 #include "Mp4ToAVI.h"
 #include "MediaPlayer.h"
+#include "MediaFilter.h"
 
 extern "C" {
 
@@ -74,6 +75,18 @@ Java_com_snail_ffmpeg_transform_MediaTransFormUtil_native_1start_1player(JNIEnv 
     MediaPlayer *mediaPlayer = new MediaPlayer();
     mediaPlayer->init(env, _video_url, surface);
     mediaPlayer->play();
+    env->ReleaseStringUTFChars(video_url, _video_url);
+}
+
+
+void JNICALL
+Java_com_snail_ffmpeg_transform_MediaTransFormUtil_native_1video_1filter(JNIEnv *env, jobject thiz,
+                                                                         jstring video_url,
+                                                                         jobject surface) {
+    const char *_video_url = env->GetStringUTFChars(video_url, 0);
+    MediaFilter *filter = new MediaFilter();
+    filter->init(env, _video_url, surface);
+    filter->play();
     env->ReleaseStringUTFChars(video_url, _video_url);
 }
 

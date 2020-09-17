@@ -26,8 +26,12 @@ object MediaTransFormUtil {
         native_add_logo(video, picture, output);
     }
 
-    fun startPlayer(videoUrl: String, surfaceView: Any) {
-        native_start_player(videoUrl, surfaceView)
+    fun startPlayer(videoUrl: String, surface: Any) {
+        native_start_player(videoUrl, surface)
+    }
+
+    fun startFilter(videoUrl: String, surface: Any) {
+        native_video_filter(videoUrl, surface)
     }
 
     external fun native_init()
@@ -39,4 +43,6 @@ object MediaTransFormUtil {
     external fun native_add_logo(videoUrl: String, pictureUrl: String, outputName: String)
 
     external fun native_start_player(videoUrl: String, surface: Any)
+
+    external fun native_video_filter(videoUrl: String, surface: Any);
 }

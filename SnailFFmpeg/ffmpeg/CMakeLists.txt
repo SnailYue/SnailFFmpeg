@@ -16,6 +16,7 @@ add_library(transform
         src/main/cpp/MediaEncoder.cpp
         src/main/cpp/MediaDecoder.cpp
         src/main/cpp/MediaPlayer.cpp
+        src/main/cpp/MediaFilter.cpp
         )
 
 add_library(avutil-55
