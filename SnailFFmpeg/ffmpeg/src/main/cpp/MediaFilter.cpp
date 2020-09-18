@@ -7,6 +7,14 @@
 
 /**
  *
+ * 1.afilter_graph_alloc  为AVFilterGraph分配内存
+ * 2.avfilter_graph_create_filter(src) 创建并想AVFilterGraph中添加一个AVfilterContext
+ * 3.avfilter_graph_create_filter(sink)
+ * 4.avfilter_graph_parse_ptr 将一串通过字符串描述的Graph团价到AVFilterGraph中
+ * 5.avfilter_graph_config 检查AVFilterGraph配置有效性，并配置其中所有连接和格式
+ * 6.avbuffersrc_add_frame 添加一个AVFrame到source filter中
+ * 7.avbuffersink_get_frame 从sink filter中获取一个AVFrame
+ *
  * 初始化
  * @param env
  * @param url
@@ -40,11 +48,12 @@ int MediaFilter::init(JNIEnv *env, string url, jobject surface) {
         LOGE("Could not find video stream info");
         return -1;
     }
+    //find avcodecContext
     avCodecContext = avFormatContext->streams[videoStream]->codec;
     //init Avfilter
     bufferSrc = avfilter_get_by_name("buffer");
     bufferSink = avfilter_get_by_name("buffersink");
-    //init AvfilterInOut
+    //1.init AvfilterInOut
     outputs = avfilter_inout_alloc();
     inputs = avfilter_inout_alloc();
     filterGraph = avfilter_graph_alloc();
@@ -53,7 +62,7 @@ int MediaFilter::init(JNIEnv *env, string url, jobject surface) {
              avCodecContext->width, avCodecContext->height, avCodecContext->pix_fmt,
              avCodecContext->time_base.num, avCodecContext->time_base.den,
              avCodecContext->sample_aspect_ratio.num, avCodecContext->sample_aspect_ratio.den);
-
+    //2.avfilter_graph_create_filter()
     int ret = avfilter_graph_create_filter(&bufferSrcContext, bufferSrc, "in", args, NULL,
                                            filterGraph);
     if (ret < 0) {
@@ -79,11 +88,12 @@ int MediaFilter::init(JNIEnv *env, string url, jobject surface) {
     inputs->filter_ctx = bufferSinkContext;
     inputs->pad_idx = 0;
     inputs->next = NULL;
-
+    //3.avfilter_graph_parse_ptr
     if ((ret = avfilter_graph_parse_ptr(filterGraph, filtersDescr, &inputs, &outputs, NULL)) < 0) {
         LOGE("Could not avfilter_graph_config");
         return ret;
     }
+    //4.avfilter_graph_config
     if ((ret = avfilter_graph_config(filterGraph, NULL)) < 0) {
         LOGE("Could not avfilter_graph_config");
         return ret;
@@ -138,10 +148,12 @@ int MediaFilter::play() {
             avcodec_decode_video2(avCodecContext, avFrame, &frameFinished, &packet);
             if (frameFinished) {
                 avFrame->pts = av_frame_get_best_effort_timestamp(avFrame);
+                //5.av_buffersrc_add_frame
                 if (av_buffersrc_add_frame(bufferSrcContext, avFrame)) {
                     LOGE("Could not av_buffersrc_add_frame");
                     break;
                 }
+                //6.av_buffersink_get_frame
                 if ((av_buffersink_get_frame(bufferSinkContext, avFrame)) < 0) {
                     LOGE("Could not av_buffersink_get_frame");
                     break;

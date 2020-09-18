@@ -55,6 +55,7 @@ public:
     int frameFinished;
     AVPacket packet;
 
+    //function
     int init(JNIEnv *env, string url, jobject surface);
 
     int play();
